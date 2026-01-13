@@ -67,10 +67,6 @@ const Navigation = () => {
             src={logoWhite}
             alt="Lorenzo TV"
           />
-          <span className={`ml-4 font-black text-xl tracking-[0.2em] uppercase transition-colors duration-500 
-            ${!isTransparent ? "text-gray-900" : "text-white"}`}>
-            Lorenzo<span className="text-[#8C0202]">TV</span>
-          </span>
         </Link>
 
         {/* Desktop Navigation */}

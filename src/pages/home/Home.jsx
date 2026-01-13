@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import useFetch from "../../hooks/useFetch";
 import { AppContext } from "../../store/AppContext";
 import Footer from "../../components/Footer/Footer";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Home = () => {
   const location = useLocation();
@@ -18,6 +18,8 @@ const Home = () => {
   const { fetchRequest: fetchCategories } = useFetch(); // Separate hook for categories
   const { updateTotalPosts, updatePostsPerPage } = useContext(AppContext);
   const [categories, setCategories] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories({ url: `${import.meta.env.VITE_API_BASE_URL}/categories` }, (res) => {
@@ -77,15 +79,7 @@ const Home = () => {
                 <button
                   key={typeof cat === 'string' ? cat : cat.id}
                   onClick={() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('category', categoryName);
-                    window.history.pushState({}, '', url);
-                    handlePagePosts(1);
-                    // Force re-render/nav? Actually calling handlePagePosts might not update URL in browser bar seamlessly if not using navigate.
-                    // But pushState works.
-                    // Wait, modifying state 'page' to 1 triggers useEffect?
-                    // No, handlePagePosts is called but doesn't set page state (it takes page arg).
-                    // I should call setPage(1).
+                    navigate(`/?category=${categoryName}`);
                     setPage(1);
                   }}
                   className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border
@@ -101,9 +95,7 @@ const Home = () => {
             )}
             <button
               onClick={() => {
-                const url = new URL(window.location.href);
-                url.searchParams.delete('category');
-                window.history.pushState({}, '', url);
+                navigate('/');
                 setPage(1);
               }}
               className={`px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 border

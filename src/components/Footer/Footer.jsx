@@ -61,9 +61,6 @@ const Footer = () => {
           <div className="lg:col-span-2 space-y-8">
             <Link to="/" className="flex items-center group">
               <img className="h-10 object-contain" src={logoWhite} alt="Lorenzo TV" />
-              <span className="ml-4 font-black text-2xl tracking-[0.2em] uppercase">
-                Lorenzo<span className="text-[#8C0202]">TV</span>
-              </span>
             </Link>
             <p className="text-gray-500 text-lg leading-relaxed max-w-sm">
               Discover stories that inspire and navigate the challenges of growth through the eyes of innovators.
