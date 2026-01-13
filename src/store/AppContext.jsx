@@ -7,9 +7,9 @@ export const AppContext = React.createContext({
   user: {},
   postsPerPage: [],
   totalPosts: 0,
-  updateLoggedInState: (data) => {},
-  updatePostsPerPage: (posts) => {},
-  updateTotalPosts: (posts) => {},
+  updateLoggedInState: (data) => { },
+  updatePostsPerPage: (posts) => { },
+  updateTotalPosts: (posts) => { },
 });
 
 const AppContextProvider = ({ children }) => {
@@ -18,18 +18,27 @@ const AppContextProvider = ({ children }) => {
   const [postsPerPage, setPostsPerPage] = useState([]);
 
   useEffect(() => {
-    const token = document.cookie.split("=")[1];
+    const getCookie = (name) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+      return null;
+    };
+
+    const token = getCookie("jwt");
     if (token) {
       try {
         const decoded = jwt(token);
+        if (!decoded || typeof decoded !== 'object') throw new Error("Invalid token structure");
+
         const currentDate = new Date();
-        if (decoded.exp * 1000 > currentDate.getTime() && decoded.user) {
+        if (decoded.exp * 1000 > currentDate.getTime()) {
           setIsLogggedIn(true);
         } else {
           setIsLogggedIn(false);
         }
       } catch (error) {
-        console.log(error);
+        console.error("JWT Decode Error:", error.message);
         setIsLogggedIn(false);
       }
     } else {

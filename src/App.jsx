@@ -5,8 +5,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import LoadingSpinner from "./components/LoadingSpinner/LoadingSpinner";
 import Login from "./pages/login";
 import SignUp from "./pages/signup";
-import MyPostsHome from "./pages/myposts";
-import MyPosts from "./pages/myposts/MyPosts";
 import AddNewPost from "./pages/myposts/AddPost";
 import EditPost from "./pages/myposts/EditPost";
 import PostDetails from "./pages/myposts/PostDetails";
@@ -14,22 +12,34 @@ import PostsHome from "./pages/home";
 import NotFound from "./pages/404/NotFound";
 import ForgotPassword from "./pages/forgotPassword";
 import ResetPassword from "./pages/resetPassword";
-import EmailVerification from "./pages/signup/EmailVerification";
 import Founderseries from "./pages/founderseries/Founderseries";
 import Aboutus from "./pages/aboutus/Aboutus";
 import Blogpost from "./pages/blogpost/Blogpost";
 import Profile from "./pages/profile/Profile";
 
+// Admin Imports
+import AdminLayout from "./pages/admin/AdminLayout";
+import DashboardHome from "./pages/admin/DashboardHome";
+import ManagePosts from "./pages/admin/ManagePosts";
+import Categories from "./pages/admin/Categories";
+import Comments from "./pages/admin/Comments";
+import Analytics from "./pages/admin/Analytics";
+
 // Dynamic Imports (Lazy - loading)
 const Home = lazy(() => import("./pages/home/Home"));
 
-// Error Boundary FallbackComponent: This is the function that will be called whenever the errorboundary component caught an error
+// Error Boundary FallbackComponent
 const ErrorFallback = (props) => {
   return (
-    <div role="alert" className="boundary__error">
-      <p>Something went wrong!</p>
-      <pre>{props.error.message}</pre>
-      <button onClick={props.resetErrorBoundary}>Restart app</button>
+    <div role="alert" className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8 text-center">
+      <h2 className="text-4xl font-black text-gray-900 mb-6 tracking-tighter">Something went wrong</h2>
+      <pre className="text-red-500 bg-red-50 p-6 rounded-2xl mb-8 font-mono text-sm max-w-xl overflow-auto">{props.error.message}</pre>
+      <button
+        onClick={props.resetErrorBoundary}
+        className="px-8 py-4 bg-[#8C0202] text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-red-950/20"
+      >
+        Restart Application
+      </button>
     </div>
   );
 };
@@ -45,40 +55,31 @@ const App = () => {
     >
       <Suspense fallback={<LoadingSpinner />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/posts" replace />} />
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/posts" element={<Home />} />
+          <Route path="/posts/:postId" element={<Blogpost />} />
+          <Route path="/founderseries" element={<Founderseries />} />
+          <Route path="/about" element={<Aboutus />} />
+
+          {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />}>
-            <Route path="verifyEmail/:token" element={<EmailVerification />} />
-          </Route>
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
 
-          {/* Nexted Route */}
-          <Route path="/posts" element={<PostsHome />}>
-            <Route path="" element={<Home />} />
-            <Route path="/posts/blogpost" element={<Blogpost />} />
-            <Route path=":postId" element={<PostsHome />}>
-              <Route path="" element={<PostDetails />} />
-              <Route path="edit" element={<EditPost />} />
-            </Route>
+          {/* Admin Protected Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<DashboardHome />} />
+            <Route path="posts" element={<ManagePosts />} />
+            <Route path="categories" element={<Categories />} />
+            <Route path="comments" element={<Comments />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="create-post" element={<AddNewPost />} />
+            <Route path="posts/:postId/edit" element={<EditPost />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
-          {/* Nexted Route */}
-          <Route path="/myposts" element={<MyPostsHome />}>
-            <Route path="" element={<MyPosts />} />
-            <Route path="addpost" element={<AddNewPost />} />
-            <Route path=":postId" element={<PostsHome />}>
-              <Route path="" element={<PostDetails />} />
-              <Route path="edit" element={<EditPost />} />
-            </Route>
-          </Route>
-
-          {/* <Route path="/about" element={<Aboutus />}/> */}
-
-          <Route path="/founderseries" element={<Founderseries/>}/>
-          <Route path="/profile" element={<Profile />}/>
-
-          {/* Routes that will be matched if none of the route(s) is matched */}
+          {/* Page Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
