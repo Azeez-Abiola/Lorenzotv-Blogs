@@ -14,27 +14,27 @@ const PreviewPostModal = ({ isOpen, onClose, post }) => {
     return createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-4xl h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-scale-up">
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-white z-10">
+            <div className="relative bg-white dark:bg-black w-full max-w-4xl h-[85vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-scale-up border dark:border-white/10">
+                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 dark:border-white/10 bg-white dark:bg-black z-10 transition-colors">
                     <div>
-                        <h3 className="text-xl font-black text-gray-900 tracking-tight">Preview</h3>
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Preview</h3>
                         <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Viewing content as it appears</p>
                     </div>
-                    <button onClick={onClose} className="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition-colors">
+                    <button onClick={onClose} className="p-2 bg-gray-100 dark:bg-white/10 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">
                         <AiOutlineClose size={20} />
                     </button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-12 bg-[#F9FAFB]">
-                    <article className="max-w-2xl mx-auto bg-white p-12 shadow-sm rounded-xl border border-gray-100 min-h-full">
+                <div className="flex-1 overflow-y-auto p-12 bg-[#F9FAFB] dark:bg-black transition-colors">
+                    <article className="max-w-2xl mx-auto bg-white dark:bg-[#0A0A0A] p-12 shadow-sm rounded-xl border border-gray-100 dark:border-white/10 min-h-full">
                         {post.image_url && (
                             <img src={post.image_url} alt="" className="w-full h-64 object-cover rounded-xl mb-8" />
                         )}
-                        <h1 className="text-4xl font-black text-gray-900 mb-4 leading-tight">{post.title}</h1>
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-4 leading-tight">{post.title}</h1>
                         <div className="flex items-center space-x-4 mb-8">
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 text-[10px] font-bold uppercase tracking-wider rounded-full">{post.tags?.[0] || 'Uncategorized'}</span>
+                            <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-500/10 text-yellow-800 dark:text-yellow-500 text-[10px] font-bold uppercase tracking-wider rounded-full">{post.tags?.[0] || 'Uncategorized'}</span>
                             <span className="text-xs text-gray-400 font-medium">{moment(post.created_at).format('MMM D, YYYY')}</span>
                         </div>
-                        <div className="prose prose-lg text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: post.content }} />
+                        <div className="prose prose-lg dark:prose-invert text-gray-700 dark:text-gray-300 leading-relaxed" dangerouslySetInnerHTML={{ __html: post.content }} />
                     </article>
                 </div>
             </div>
@@ -53,17 +53,17 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
     return createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 animate-scale-up overflow-hidden ring-1 ring-black/5">
+            <div className="relative bg-white dark:bg-[#0A0A0A] w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 animate-scale-up overflow-hidden ring-1 ring-black/5 transition-colors">
                 <div className="p-8 text-center">
                     <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${colorClass}`}>
                         <Icon size={32} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-                    <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-8 leading-relaxed">
                         {message}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
-                        <button onClick={onClose} className="h-10 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all bg-white">
+                        <button onClick={onClose} className="h-10 rounded-lg border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent">
                             Cancel
                         </button>
                         <button onClick={onConfirm} className={`h-10 rounded-lg text-[11px] font-bold text-white uppercase tracking-wider transition-all shadow-lg ${btnClass}`}>
@@ -174,8 +174,8 @@ const ManagePosts = () => {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-900 mb-1">Posts</h1>
-                    <p className="text-sm text-gray-500">Managing {posts.length} stories</p>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Posts</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Managing {posts.length} stories</p>
                 </div>
                 <Link to="/admin/create-post" className="inline-flex items-center space-x-2 px-5 py-2.5 bg-[#8C0202] text-white rounded-md font-bold uppercase tracking-wider text-[11px] hover:bg-[#6B0101] transition-colors shadow-lg shadow-red-900/10">
                     <AiOutlinePlus size={16} />
@@ -184,13 +184,13 @@ const ManagePosts = () => {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center space-x-1 border-b border-gray-200">
+            <div className="flex items-center space-x-1 border-b border-gray-200 dark:border-white/10">
                 {tabs.map(tab => (
                     <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-3 text-[11px] font-bold uppercase tracking-wider transition-colors relative
-                            ${activeTab === tab.id ? 'text-[#8C0202]' : 'text-gray-500 hover:text-gray-700'}`}
+                            ${activeTab === tab.id ? 'text-[#8C0202]' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white'}`}
                     >
                         {tab.label}
                         {activeTab === tab.id && (
@@ -203,41 +203,41 @@ const ManagePosts = () => {
             {isLoading && !posts.length ? (
                 <div className="flex justify-center py-20"><LoadingSpinner type="full" /></div>
             ) : (
-                <div className="bg-white rounded-lg border border-gray-200/80 overflow-hidden shadow-sm">
+                <div className="bg-white dark:bg-[#0A0A0A] rounded-lg border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm transition-colors">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-gray-200/80">
+                            <thead className="bg-gray-50 dark:bg-white/[0.02] border-b border-gray-200/80 dark:border-white/10">
                                 <tr>
-                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500">Title</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500">Category</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500">Status</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500">Created</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 text-right">Actions</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                 {displayPosts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-400 text-sm">
+                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
                                             No posts found in this view.
                                         </td>
                                     </tr>
                                 ) : (
                                     displayPosts.map((post) => (
-                                        <tr key={post.id} className="hover:bg-gray-50/80 transition-colors group">
+                                        <tr key={post.id} className="hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center space-x-3">
-                                                    <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 border border-gray-200/80 shrink-0">
+                                                    <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200/80 dark:border-white/10 shrink-0">
                                                         <img src={post.image_url || 'https://via.placeholder.com/150'} alt="" className="w-full h-full object-cover" />
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <p className="text-[13px] font-semibold text-gray-800 truncate max-w-[200px]">{post.title}</p>
+                                                        <p className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 truncate max-w-[200px]">{post.title}</p>
                                                         <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wide mt-0.5">#{post.id}</p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wide rounded border border-gray-200">
+                                                <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 text-[10px] font-bold uppercase tracking-wide rounded border border-gray-200 dark:border-white/10">
                                                     {Array.isArray(post.tags) ? post.tags[0] : (post.tags || "General")}
                                                 </span>
                                             </td>
@@ -246,28 +246,28 @@ const ManagePosts = () => {
                                                     {post.status === 'published' ? (
                                                         <>
                                                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
-                                                            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wide">Published</span>
+                                                            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-wide">Published</span>
                                                         </>
                                                     ) : (
                                                         <>
                                                             <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
-                                                            <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wide">Draft</span>
+                                                            <span className="text-[11px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wide">Draft</span>
                                                         </>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-[11px] font-medium text-gray-500">
+                                            <td className="px-6 py-4 text-[11px] font-medium text-gray-500 dark:text-gray-400">
                                                 {moment(post.created_at).format('MMM D, YYYY h:mm A')}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-end space-x-1">
-                                                    <button onClick={() => setPreviewPost(post)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors" title="Preview">
+                                                    <button onClick={() => setPreviewPost(post)} className="p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded transition-colors" title="Preview">
                                                         <AiOutlineEye size={16} />
                                                     </button>
-                                                    <button onClick={() => setEditId(post.id)} className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 rounded transition-colors" title="Edit">
+                                                    <button onClick={() => setEditId(post.id)} className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded transition-colors" title="Edit">
                                                         <AiOutlineEdit size={16} />
                                                     </button>
-                                                    <button onClick={() => setDeleteId(post.id)} className="p-2 text-gray-400 hover:text-[#8C0202] hover:bg-red-50 rounded transition-colors" title="Delete">
+                                                    <button onClick={() => setDeleteId(post.id)} className="p-2 text-gray-400 hover:text-[#8C0202] hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors" title="Delete">
                                                         <AiOutlineDelete size={16} />
                                                     </button>
                                                 </div>

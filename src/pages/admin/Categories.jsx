@@ -28,11 +28,11 @@ const CategoryActionMenu = ({ onEdit, onDelete }) => {
                 <AiOutlineEllipsis size={16} />
             </button>
             {isOpen && (
-                <div className="absolute right-0 mt-1 w-32 bg-white rounded-md border border-gray-200 shadow-xl z-50 animate-fade-in origin-top-right ring-1 ring-black/5">
-                    <button onClick={(e) => { e.stopPropagation(); onEdit(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#8C0202] transition-colors flex items-center space-x-2">
+                <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#0A0A0A] rounded-md border border-gray-200 dark:border-white/10 shadow-xl z-50 animate-fade-in origin-top-right ring-1 ring-black/5">
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-[#8C0202] dark:hover:text-[#8C0202] transition-colors flex items-center space-x-2">
                         <AiOutlineEdit /> <span>Edit</span>
                     </button>
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center space-x-2 border-t border-gray-50">
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(); setIsOpen(false); }} className="w-full text-left px-4 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-500 transition-colors flex items-center space-x-2 border-t border-gray-50 dark:border-white/5">
                         <AiOutlineDelete /> <span>Delete</span>
                     </button>
                 </div>
@@ -49,17 +49,17 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm }) => {
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 animate-scale-up overflow-hidden ring-1 ring-black/5">
+            <div className="relative bg-white dark:bg-[#0A0A0A] w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 animate-scale-up overflow-hidden ring-1 ring-black/5 transition-colors">
                 <div className="p-8 text-center">
-                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-600 mx-auto mb-6">
+                    <div className="w-16 h-16 bg-red-50 dark:bg-red-500/10 rounded-full flex items-center justify-center text-red-600 dark:text-red-500 mx-auto mb-6">
                         <AiOutlineWarning size={32} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Category?</h3>
-                    <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Delete Category?</h3>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-8 leading-relaxed">
                         Are you sure you want to delete this category? This action cannot be undone.
                     </p>
                     <div className="grid grid-cols-2 gap-3">
-                        <button onClick={onClose} className="h-10 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all bg-white">Cancel</button>
+                        <button onClick={onClose} className="h-10 rounded-lg border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent">Cancel</button>
                         <button onClick={onConfirm} className="h-10 rounded-lg bg-[#8C0202] text-[11px] font-bold text-white uppercase tracking-wider hover:bg-[#6B0101] shadow-lg">Delete</button>
                     </div>
                 </div>
@@ -79,19 +79,19 @@ const CategoryModal = ({ isOpen, onClose, onSave, initialName = "" }) => {
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-md rounded-xl shadow-2xl border border-gray-200 animate-scale-up overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-                    <h3 className="text-lg font-bold text-gray-900">{initialName ? 'Edit Category' : 'Add New Category'}</h3>
+            <div className="relative bg-white dark:bg-[#0A0A0A] w-full max-w-md rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 animate-scale-up overflow-hidden transition-colors">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 dark:border-white/10 bg-white dark:bg-black">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{initialName ? 'Edit Category' : 'Add New Category'}</h3>
                     <button onClick={onClose}><AiOutlineClose size={20} className="text-gray-400 hover:text-red-600" /></button>
                 </div>
                 <div className="p-6 space-y-5">
                     <div>
-                        <label className="block text-[11px] font-bold text-gray-900 uppercase tracking-wider mb-2">Category Name</label>
-                        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-[#8C0202]" autoFocus />
+                        <label className="block text-[11px] font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-2">Category Name</label>
+                        <input value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3 border border-gray-300 dark:border-white/10 rounded-lg outline-none focus:border-[#8C0202] dark:bg-white/5 dark:text-white" autoFocus />
                     </div>
                 </div>
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end space-x-3">
-                    <button onClick={onClose} className="px-5 py-2 text-[11px] font-bold text-gray-700 uppercase bg-white border border-gray-200 rounded-lg">Cancel</button>
+                <div className="px-6 py-4 bg-gray-50 dark:bg-white/[0.02] border-t border-gray-100 dark:border-white/10 flex justify-end space-x-3">
+                    <button onClick={onClose} className="px-5 py-2 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase bg-white dark:bg-transparent border border-gray-200 dark:border-white/10 rounded-lg">Cancel</button>
                     <button onClick={handleSave} className="px-5 py-2 bg-[#8C0202] text-white text-[11px] font-bold uppercase rounded-lg shadow-lg">Save</button>
                 </div>
             </div>
@@ -123,16 +123,16 @@ const CategoryArticlesModal = ({ isOpen, onClose, categoryName }) => {
     return createPortal(
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 animate-fade-in">
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="relative bg-white w-full max-w-2xl max-h-[80vh] flex flex-col rounded-xl shadow-2xl overflow-hidden animate-scale-up">
-                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 bg-gray-50">
+            <div className="relative bg-white dark:bg-[#0A0A0A] w-full max-w-2xl max-h-[80vh] flex flex-col rounded-xl shadow-2xl overflow-hidden animate-scale-up border dark:border-white/10 transition-colors">
+                <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-black">
                     <div>
-                        <h3 className="text-xl font-black text-gray-900 tracking-tight">{categoryName} Articles</h3>
-                        <p className="text-xs text-gray-500 font-medium mt-1">Managing content for this section</p>
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">{categoryName} Articles</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">Managing content for this section</p>
                     </div>
-                    <button onClick={onClose} className="p-2 bg-white rounded-full text-gray-400 hover:text-red-600 shadow-sm transition-colors"><AiOutlineClose size={20} /></button>
+                    <button onClick={onClose} className="p-2 bg-white dark:bg-white/10 rounded-full text-gray-400 hover:text-red-600 shadow-sm transition-colors"><AiOutlineClose size={20} /></button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-0">
+                <div className="flex-1 overflow-y-auto p-0 dark:bg-black">
                     {isLoading ? (
                         <div className="p-10 text-center text-gray-400 text-sm">Loading articles...</div>
                     ) : articles.length === 0 ? (
@@ -141,12 +141,12 @@ const CategoryArticlesModal = ({ isOpen, onClose, categoryName }) => {
                             <p>No articles found in this category.</p>
                         </div>
                     ) : (
-                        <ul className="divide-y divide-gray-100">
+                        <ul className="divide-y divide-gray-100 dark:divide-white/5">
                             {articles.map(article => (
-                                <li key={article.id} className="hover:bg-gray-50 transition-colors">
+                                <li key={article.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                                     <Link to={`/admin/posts/${article.id}/edit`} className="block px-8 py-5 flex items-center justify-between group">
                                         <div className="flex items-center space-x-4">
-                                            <div className="w-10 h-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                            <div className="w-10 h-10 bg-gray-100 dark:bg-white/5 rounded-lg overflow-hidden flex-shrink-0">
                                                 {article.image_url ? (
                                                     <img src={article.image_url} alt="" className="w-full h-full object-cover" />
                                                 ) : (
@@ -154,11 +154,11 @@ const CategoryArticlesModal = ({ isOpen, onClose, categoryName }) => {
                                                 )}
                                             </div>
                                             <div>
-                                                <h4 className="text-sm font-bold text-gray-900 group-hover:text-[#8C0202] transition-colors line-clamp-1">{article.title}</h4>
-                                                <div className="flex items-center space-x-3 mt-1 text-[10px] text-gray-400 uppercase tracking-wider font-bold">
+                                                <h4 className="text-sm font-bold text-gray-900 dark:text-gray-200 group-hover:text-[#8C0202] transition-colors line-clamp-1">{article.title}</h4>
+                                                <div className="flex items-center space-x-3 mt-1 text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-bold">
                                                     <span>{new Date(article.created_at).toLocaleDateString()}</span>
                                                     <span>•</span>
-                                                    <span className={article.status === 'published' ? 'text-green-600' : 'text-orange-500'}>{article.status}</span>
+                                                    <span className={article.status === 'published' ? 'text-green-600 dark:text-green-500' : 'text-orange-500 dark:text-orange-400'}>{article.status}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -234,23 +234,23 @@ const Categories = () => {
         <div className="space-y-6 animate-fade-in pb-10">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-900 mb-1">Categories</h1>
-                    <p className="text-sm text-gray-500">Organize your content taxonomy</p>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Categories</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Organize your content taxonomy</p>
                 </div>
                 <button
                     onClick={() => { setEditingCategory(null); setIsModalOpen(true); }}
-                    className="inline-flex items-center space-x-2 bg-gray-900 text-white px-5 py-2.5 rounded-md font-bold uppercase tracking-wider text-[11px] hover:bg-[#8C0202] transition-colors shadow-lg shadow-gray-900/20"
+                    className="inline-flex items-center space-x-2 bg-gray-900 dark:bg-white text-white dark:text-black px-5 py-2.5 rounded-md font-bold uppercase tracking-wider text-[11px] hover:bg-[#8C0202] dark:hover:bg-[#8C0202] dark:hover:text-white transition-colors shadow-lg shadow-gray-900/20"
                 >
                     <AiOutlinePlus size={16} />
                     <span>Add Category</span>
                 </button>
             </div>
 
-            <div className="bg-white rounded-lg border border-gray-200/80 overflow-hidden shadow-sm">
+            <div className="bg-white dark:bg-[#0A0A0A] rounded-lg border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm transition-colors">
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="text-[10px] font-bold text-gray-500 text-left border-b border-gray-200/80 uppercase tracking-wider bg-gray-50">
+                            <tr className="text-[10px] font-bold text-gray-500 dark:text-gray-400 text-left border-b border-gray-200/80 dark:border-white/10 uppercase tracking-wider bg-gray-50 dark:bg-white/[0.02]">
                                 <th className="py-4 px-6 w-1/3">Category</th>
                                 <th className="py-4 px-6">URL Slug</th>
                                 <th className="py-4 px-6">Posts</th>
@@ -258,31 +258,31 @@ const Categories = () => {
                                 <th className="py-4 px-6 text-right w-32">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                             {isLoading ? (
                                 <tr><td colSpan="5" className="p-8 text-center text-gray-400">Loading categories...</td></tr>
                             ) : categories.map((cat) => (
                                 <tr
                                     key={cat.id}
                                     onClick={() => handleViewArticles(cat)}
-                                    className="group hover:bg-gray-50/80 transition-colors cursor-pointer"
+                                    className="group hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors cursor-pointer"
                                 >
                                     <td className="py-4 px-6">
                                         <div className="flex items-center space-x-3">
-                                            <div className="w-9 h-9 bg-gray-100 rounded-md flex items-center justify-center text-gray-500 group-hover:text-[#8C0202] transition-colors border border-gray-200/80">
+                                            <div className="w-9 h-9 bg-gray-100 dark:bg-white/5 rounded-md flex items-center justify-center text-gray-500 dark:text-gray-400 group-hover:text-[#8C0202] transition-colors border border-gray-200/80 dark:border-white/10">
                                                 <AiOutlineFolder size={18} />
                                             </div>
-                                            <p className="text-[13px] font-semibold text-gray-800">{cat.name}</p>
+                                            <p className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{cat.name}</p>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <code className="bg-gray-100 px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 border border-gray-200/60">/{cat.slug}</code>
+                                        <code className="bg-gray-100 dark:bg-white/5 px-2 py-0.5 rounded text-[11px] font-medium text-gray-500 dark:text-gray-400 border border-gray-200/60 dark:border-white/10">/{cat.slug}</code>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <p className="text-[12px] font-medium text-gray-700">{cat.count || 0} articles</p>
+                                        <p className="text-[12px] font-medium text-gray-700 dark:text-gray-300">{cat.count || 0} articles</p>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border ${cat.status === 'active' ? 'text-emerald-600 bg-emerald-50 border-emerald-100' : 'text-gray-500 bg-gray-100'}`}>
+                                        <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded border ${cat.status === 'active' ? 'text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20' : 'text-gray-500 bg-gray-100 dark:bg-white/5'}`}>
                                             {cat.status || 'Active'}
                                         </span>
                                     </td>

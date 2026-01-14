@@ -17,9 +17,9 @@ import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import moment from "moment";
 
 const MetricCard = ({ title, value, icon, trend, trendValue, iconBg }) => (
-    <div className="bg-white p-5 rounded-lg border border-gray-200/80 flex flex-col space-y-4 hover:shadow-lg hover:shadow-gray-200/40 transition-all duration-300 group">
+    <div className="bg-white dark:bg-[#0A0A0A] p-5 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col space-y-4 hover:shadow-lg hover:shadow-gray-200/40 dark:hover:shadow-white/5 transition-all duration-300 group">
         <div className="flex items-center justify-between">
-            <div className={`w-11 h-11 ${iconBg} rounded-md flex items-center justify-center text-[#8C0202] text-xl border border-gray-100`}>
+            <div className={`w-11 h-11 ${iconBg} dark:bg-white/5 rounded-md flex items-center justify-center text-[#8C0202] text-xl border border-gray-100 dark:border-white/10`}>
                 {icon}
             </div>
             <div className={`flex items-center space-x-1 text-[11px] font-bold ${trend === 'up' ? 'text-emerald-500' : 'text-red-500'}`}>
@@ -29,7 +29,7 @@ const MetricCard = ({ title, value, icon, trend, trendValue, iconBg }) => (
         </div>
         <div className="pt-1">
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
-            <h3 className="text-2xl font-bold text-gray-900 tracking-tight">{value}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">{value}</h3>
         </div>
     </div>
 );
@@ -53,19 +53,19 @@ const CustomDropdown = ({ options, defaultValue }) => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md px-3 py-1.5 transition-colors"
+                className="flex items-center space-x-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-md px-3 py-1.5 transition-colors"
             >
-                <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">{selected}</span>
+                <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">{selected}</span>
                 <IoChevronDownOutline size={12} className="text-gray-400" />
             </button>
             {isOpen && (
-                <div className="absolute right-0 mt-1 w-32 bg-white rounded-md border border-gray-200 shadow-lg z-20 animate-slide-down">
+                <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#0A0A0A] rounded-md border border-gray-200 dark:border-white/10 shadow-lg z-20 animate-slide-down">
                     <div className="py-1">
                         {options.map((option) => (
                             <button
                                 key={option}
                                 onClick={() => { setSelected(option); setIsOpen(false); }}
-                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 ${selected === option ? 'text-[#8C0202] font-bold' : 'text-gray-600'}`}
+                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${selected === option ? 'text-[#8C0202] dark:text-[#8C0202] font-bold' : 'text-gray-600 dark:text-gray-400'}`}
                             >
                                 {option}
                             </button>
@@ -79,15 +79,15 @@ const CustomDropdown = ({ options, defaultValue }) => {
 
 const PostGrowthChart = ({ data }) => {
     return (
-        <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col h-full relative">
+        <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full relative">
             <div className="flex items-center justify-between mb-6">
-                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Publication Volume</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Publication Volume</h4>
                 <CustomDropdown options={["6 Months", "Yearly", "All Time"]} defaultValue="6 Months" />
             </div>
             <div className="flex items-center space-x-4 mb-6">
                 <div className="flex items-center space-x-2">
                     <span className="w-3 h-3 bg-[#8C0202] rounded-sm"></span>
-                    <span className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Posts</span>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Posts</span>
                 </div>
             </div>
 
@@ -97,7 +97,7 @@ const PostGrowthChart = ({ data }) => {
                     {[50, 40, 30, 20, 10, 0].map(val => (
                         <div key={val} className="flex items-center w-full">
                             <span className="text-[10px] font-bold text-gray-400 w-5 shrink-0">{val}</span>
-                            <div className="flex-1 border-t border-dashed border-gray-100 ml-2"></div>
+                            <div className="flex-1 border-t border-dashed border-gray-100 dark:border-white/5 ml-2"></div>
                         </div>
                     ))}
                 </div>
@@ -125,7 +125,7 @@ const PostGrowthChart = ({ data }) => {
 
 const EngagementChart = ({ data }) => {
     if (!data || data.length === 0) return (
-        <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col h-full items-center justify-center text-gray-400">
+        <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full items-center justify-center text-gray-400">
             <p className="text-xs font-bold uppercase tracking-widest">No Data Available</p>
         </div>
     );
@@ -139,13 +139,13 @@ const EngagementChart = ({ data }) => {
     }).join(' L ');
 
     return (
-        <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col h-full relative">
+        <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full relative">
             <div className="flex items-center justify-between mb-6">
-                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Engagement (Comments)</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Engagement (Comments)</h4>
                 <CustomDropdown options={["Yearly"]} defaultValue="Yearly" />
             </div>
             <div className="flex items-center space-x-5 mb-6">
-                <div className="flex items-center space-x-2"><span className="w-2.5 h-2.5 bg-[#8C0202] rounded-sm"></span><span className="text-[10px] font-bold text-gray-600 uppercase tracking-wide">Activity Volume</span></div>
+                <div className="flex items-center space-x-2"><span className="w-2.5 h-2.5 bg-[#8C0202] rounded-sm"></span><span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Activity Volume</span></div>
             </div>
             <div className="flex-1 relative mt-2">
                 <svg className="w-full h-full min-h-[140px]" viewBox="0 0 1000 300" preserveAspectRatio="none">
@@ -214,8 +214,8 @@ const DashboardHome = () => {
         <div className="space-y-6 animate-fade-in pb-8 overflow-x-hidden">
             {/* Page Header */}
             <div className="mb-2">
-                <h1 className="text-xl font-bold text-gray-900 mb-1">Overview</h1>
-                <p className="text-sm text-gray-500">Track your content performance and engagement</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Overview</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Track your content performance and engagement</p>
             </div>
 
             {/* Metric Row */}
@@ -263,40 +263,43 @@ const DashboardHome = () => {
             {/* Tables Row */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 {/* Latest Posts */}
-                <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col overflow-hidden">
+                <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col overflow-hidden">
                     <div className="flex items-center justify-between mb-5">
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Recent Posts</h4>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Recent Posts</h4>
                         <Link to="/admin/posts" className="text-[10px] font-bold text-[#8C0202] uppercase tracking-wider hover:underline">View All</Link>
                     </div>
                     <div className="overflow-x-auto -mx-6">
                         <table className="w-full">
                             <thead>
-                                <tr className="text-[10px] font-bold text-gray-400 text-left border-b border-gray-100 uppercase tracking-wider">
+                                <tr className="text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left border-b border-gray-100 dark:border-white/5 uppercase tracking-wider">
                                     <th className="pb-3 pl-6">Title</th>
                                     <th className="pb-3">Status</th>
                                     <th className="pb-3">Date</th>
                                     <th className="pb-3 pr-6"></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                                 {filteredPosts.map((post) => (
-                                    <tr key={post.id} className="group hover:bg-gray-50/80 transition-colors">
+                                    <tr key={post.id} className="group hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors">
                                         <td className="py-4 pl-6 pr-4">
-                                            <p className="text-[13px] font-semibold text-gray-800 line-clamp-1">{post.title}</p>
+                                            <p className="text-[13px] font-semibold text-gray-800 dark:text-gray-200 line-clamp-1">{post.title}</p>
                                         </td>
                                         <td className="py-4">
                                             <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded
-                                                ${post.status === 'published' ? 'text-emerald-600 bg-emerald-50' : 'text-amber-600 bg-amber-50'}`}>
+                                                ${post.status === 'published' ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10' : 'text-amber-600 bg-amber-50 dark:bg-amber-500/10'}`}>
                                                 {post.status}
                                             </span>
                                         </td>
                                         <td className="py-4 whitespace-nowrap">
-                                            <p className="text-[11px] font-medium text-gray-500">{moment(post.created_at).format('MMM D')}</p>
+                                            <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">{moment(post.created_at).format('MMM D')}</p>
                                         </td>
                                         <td className="py-4 pr-6 text-right">
-                                            <button className="p-1.5 text-gray-400 hover:text-[#8C0202] hover:bg-red-50 rounded transition-colors">
+                                            <Link
+                                                to={`/posts/${post.id}`}
+                                                className="p-1.5 text-gray-400 hover:text-[#8C0202] hover:bg-red-50 dark:hover:bg-red-500/10 rounded transition-colors"
+                                            >
                                                 <AiOutlineEye size={16} />
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 ))}
@@ -306,37 +309,40 @@ const DashboardHome = () => {
                 </div>
 
                 {/* Recent Comments */}
-                <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col overflow-hidden">
+                <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col overflow-hidden">
                     <div className="flex items-center justify-between mb-5">
-                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Recent Feedback</h4>
+                        <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Recent Feedback</h4>
                         <Link to="/admin/comments" className="text-[10px] font-bold text-[#8C0202] uppercase tracking-wider hover:underline">View All</Link>
                     </div>
                     <div className="overflow-x-auto -mx-6">
                         <table className="w-full">
                             <thead>
-                                <tr className="text-[10px] font-bold text-gray-400 text-left border-b border-gray-100 uppercase tracking-wider">
+                                <tr className="text-[10px] font-bold text-gray-400 dark:text-gray-500 text-left border-b border-gray-100 dark:border-white/5 uppercase tracking-wider">
                                     <th className="pb-3 pl-6">Author</th>
                                     <th className="pb-3">Comment</th>
                                     <th className="pb-3">Date</th>
                                     <th className="pb-3 pr-6 text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                                 {recentComments.length > 0 ? recentComments.map((comment) => (
-                                    <tr key={comment.id} className="group hover:bg-gray-50/80 transition-colors">
+                                    <tr key={comment.id} className="group hover:bg-gray-50/80 dark:hover:bg-white/[0.02] transition-colors">
                                         <td className="py-4 pl-6 pr-4">
-                                            <p className="text-[13px] font-semibold text-gray-800">{comment.profiles?.username?.split(' ')[0] || "Guest"}</p>
+                                            <p className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{comment.profiles?.username?.split(' ')[0] || "Guest"}</p>
                                         </td>
                                         <td className="py-4 pr-4 max-w-[200px]">
-                                            <p className="text-[12px] text-gray-500 line-clamp-1 italic">"{comment.content}"</p>
+                                            <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-1 italic">"{comment.content}"</p>
                                         </td>
                                         <td className="py-4 whitespace-nowrap">
-                                            <p className="text-[11px] font-medium text-gray-500">{moment(comment.created_at).format('MMM D')}</p>
+                                            <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">{moment(comment.created_at).format('MMM D')}</p>
                                         </td>
                                         <td className="py-4 pr-6 text-right">
-                                            <button className="px-3 py-1.5 bg-gray-900 text-white text-[9px] font-bold uppercase tracking-wider rounded hover:bg-[#8C0202] transition-colors">
+                                            <Link
+                                                to="/admin/comments"
+                                                className="px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-black text-[9px] font-bold uppercase tracking-wider rounded hover:bg-[#8C0202] dark:hover:bg-[#8C0202] dark:hover:text-white transition-colors"
+                                            >
                                                 View
-                                            </button>
+                                            </Link>
                                         </td>
                                     </tr>
                                 )) : (

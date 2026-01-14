@@ -101,20 +101,6 @@ function Aboutus() {
         </div>
       </section>
 
-      {/* Team */}
-      <section className='bg-[#FAFAFA] py-32 px-6 border-y border-gray-200'>
-        <div className="max-w-7xl mx-auto text-center mb-20">
-          <h2 className='text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight'>The Minds Behind the Screen</h2>
-          <p className='text-lg text-gray-500 max-w-2xl mx-auto font-medium'>A collective of dreamers, doers, and relentless creators dedicated to bringing you the best content on the web.</p>
-        </div>
-
-        <div className='max-w-7xl mx-auto flex flex-wrap justify-center gap-x-12 gap-y-16'>
-          <MemberCard name='Bene Abiola' role='Founder & CEO' image={Member} />
-          <MemberCard name='Josephine Yusuf' role='Editor in Chief' image={Member} />
-          <MemberCard name='Frank Sullivan' role='Creative Director' image={Member} />
-          <MemberCard name='Tosin Hassan' role='Lead Technologist' image={Member} />
-        </div>
-      </section>
 
       <Footer />
     </div>

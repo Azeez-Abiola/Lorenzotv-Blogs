@@ -23,19 +23,19 @@ const CustomDropdown = ({ options, defaultValue }) => {
         <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md px-3 py-1.5 transition-colors"
+                className="flex items-center space-x-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-md px-3 py-1.5 transition-colors"
             >
-                <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">{selected}</span>
+                <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">{selected}</span>
                 <IoChevronDownOutline size={12} className="text-gray-400" />
             </button>
             {isOpen && (
-                <div className="absolute right-0 mt-1 w-32 bg-white rounded-md border border-gray-200 shadow-lg z-20 animate-slide-down">
+                <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-[#0A0A0A] rounded-md border border-gray-200 dark:border-white/10 shadow-lg z-20 animate-slide-down">
                     <div className="py-1">
                         {options.map((option) => (
                             <button
                                 key={option}
                                 onClick={() => { setSelected(option); setIsOpen(false); }}
-                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 ${selected === option ? 'text-[#8C0202] font-bold' : 'text-gray-600'}`}
+                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${selected === option ? 'text-[#8C0202] font-bold' : 'text-gray-600 dark:text-gray-400'}`}
                             >
                                 {option}
                             </button>
@@ -49,7 +49,7 @@ const CustomDropdown = ({ options, defaultValue }) => {
 
 const PostGrowthChart = ({ data }) => {
     if (!data || data.length === 0) return (
-        <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col h-96 items-center justify-center text-gray-400">
+        <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-96 items-center justify-center text-gray-400">
             <p>No data available</p>
         </div>
     );
@@ -57,9 +57,9 @@ const PostGrowthChart = ({ data }) => {
     const maxVal = Math.max(...data.map(d => d.posts), 10); // Minimum scale of 10
 
     return (
-        <div className="bg-white p-6 rounded-lg border border-gray-200/80 flex flex-col h-96 relative">
+        <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-96 relative transition-colors shadow-sm">
             <div className="flex items-center justify-between mb-6">
-                <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wide">Publication Volume</h4>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Publication Volume</h4>
                 <CustomDropdown options={["6 Months", "Yearly", "All Time"]} defaultValue="Yearly" />
             </div>
 
@@ -68,8 +68,8 @@ const PostGrowthChart = ({ data }) => {
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-10">
                     {[1, 0.75, 0.5, 0.25, 0].map(val => (
                         <div key={val} className="flex items-center w-full">
-                            <span className="text-[10px] font-bold text-gray-400 w-8 shrink-0">{Math.round(maxVal * val)}</span>
-                            <div className="flex-1 border-t border-dashed border-gray-100 ml-2"></div>
+                            <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 w-8 shrink-0">{Math.round(maxVal * val)}</span>
+                            <div className="flex-1 border-t border-dashed border-gray-100 dark:border-white/5 ml-2"></div>
                         </div>
                     ))}
                 </div>
@@ -86,7 +86,7 @@ const PostGrowthChart = ({ data }) => {
                                 </div>
                             </div>
                         </div>
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{d.month}</span>
+                        <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight">{d.month}</span>
                     </div>
                 ))}
             </div>
@@ -137,10 +137,10 @@ const Analytics = () => {
         <div className="space-y-6 animate-fade-in">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-xl font-bold text-gray-900 mb-1">Analytics</h1>
-                    <p className="text-sm text-gray-500">Real-time content performance</p>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Analytics</h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Real-time content performance</p>
                 </div>
-                <div className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200/80 rounded-md text-[11px] font-medium text-gray-600">
+                <div className="flex items-center space-x-2 px-4 py-2 bg-white dark:bg-[#0A0A0A] border border-gray-200/80 dark:border-white/10 rounded-md text-[11px] font-medium text-gray-600 dark:text-gray-400">
                     <span>Current Year Data</span>
                 </div>
             </div>
@@ -148,9 +148,9 @@ const Analytics = () => {
             {/* Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {metrics.map((stat, idx) => (
-                    <div key={idx} className="bg-white p-5 rounded-lg border border-gray-200/80 group hover:shadow-lg hover:shadow-gray-200/40 transition-all duration-300">
+                    <div key={idx} className="bg-white dark:bg-[#0A0A0A] p-5 rounded-lg border border-gray-200/80 dark:border-white/10 group hover:shadow-lg hover:shadow-gray-200/40 dark:hover:shadow-white/5 transition-all duration-300">
                         <div className="flex items-center justify-between mb-4">
-                            <div className={`w-10 h-10 ${stat.iconBg} rounded-md flex items-center justify-center text-xl border border-gray-100`}>
+                            <div className={`w-10 h-10 ${stat.iconBg} dark:bg-white/5 rounded-md flex items-center justify-center text-xl border border-gray-100 dark:border-white/10`}>
                                 {stat.icon}
                             </div>
                             {/* Dummy trend logic for now since we don't have historical deltas stored */}
@@ -159,8 +159,8 @@ const Analytics = () => {
                                 {stat.growth}
                             </span>
                         </div>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{stat.title}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1">{stat.title}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                     </div>
                 ))}
             </div>

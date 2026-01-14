@@ -1,4 +1,4 @@
-# 🔥 Lorenzo TV Blog
+# 🔥 Lorenzo Blog
 
 A modern, full-featured blog platform built with React, Node.js, and Supabase.
 
@@ -172,9 +172,9 @@ This project is private and proprietary.
 
 ## 👨‍💻 Author
 
-**Lorenzo TV**  
+**Lorenzo Blog**  
 A leading digital media platform for storytelling and innovation.
 
 ---
 
-Made with ❤️ by the Lorenzo TV Team
+Made with ❤️ by the Lorenzo Blog Team

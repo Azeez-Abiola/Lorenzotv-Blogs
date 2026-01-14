@@ -30,20 +30,20 @@ const ActionConfirmationModal = ({ isOpen, onClose, onConfirm, actionType, isLoa
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
-      <div className="relative bg-white w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 animate-scale-up overflow-hidden ring-1 ring-black/5">
+      <div className="relative bg-white dark:bg-[#0A0A0A] w-full max-w-sm rounded-xl shadow-2xl border border-gray-200 dark:border-white/10 animate-scale-up overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
         <div className="p-8 text-center">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPublish ? 'bg-red-50 text-[#8C0202]' : 'bg-gray-50 text-gray-700'}`}>
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isPublish ? 'bg-red-50 dark:bg-red-500/10 text-[#8C0202]' : 'bg-gray-50 dark:bg-white/5 text-gray-700 dark:text-gray-400'}`}>
             <AiOutlineQuestionCircle size={32} />
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-          <p className="text-gray-500 text-sm font-medium mb-8 leading-relaxed">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{title}</h3>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mb-8 leading-relaxed">
             {message}
           </p>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="h-10 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-700 uppercase tracking-wider hover:bg-gray-50 transition-all bg-white disabled:opacity-50"
+              className="h-10 rounded-lg border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent disabled:opacity-50"
             >
               Cancel
             </button>
@@ -80,14 +80,14 @@ const CustomDropdown = ({ selected, options, onChange }) => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-[#1C1D36] hover:text-red-500 transition-colors bg-gray-50 px-4 py-2 rounded-lg"
+        className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest text-[#1C1D36] dark:text-white hover:text-red-500 transition-colors bg-gray-50 dark:bg-white/5 px-4 py-2 rounded-lg"
       >
         <span>{selected}</span>
         <AiOutlineDown size={12} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in-up">
+        <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-[#0A0A0A] rounded-xl shadow-xl border border-gray-100 dark:border-white/10 py-2 z-50 animate-fade-in-up">
           {options.map((option) => (
             <button
               key={option}
@@ -96,7 +96,7 @@ const CustomDropdown = ({ selected, options, onChange }) => {
                 setIsOpen(false);
               }}
               className={`w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors
-                ${selected === option ? 'bg-red-50 text-[#8C0202]' : 'text-gray-600 hover:bg-gray-50'}`}
+                ${selected === option ? 'bg-red-50 dark:bg-red-500/10 text-[#8C0202]' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'}`}
             >
               {option}
             </button>
@@ -260,25 +260,25 @@ const EditPost = () => {
   }
 
   return (
-    <div className="w-full bg-white flex flex-col animate-fade-in font-sans">
+    <div className="w-full bg-white dark:bg-black flex flex-col animate-fade-in font-sans transition-colors duration-300">
       {/* Top Header */}
       <header className="py-8 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
         <div className="flex items-center space-x-6">
-          <button onClick={() => navigate(-1)} className="p-3 bg-white border border-gray-100 rounded-xl hover:text-red-500 hover:shadow-lg transition-all text-gray-400">
+          <button onClick={() => navigate(-1)} className="p-3 bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl hover:text-red-500 hover:shadow-lg transition-all text-gray-400 dark:text-gray-500">
             <AiOutlineArrowLeft size={22} />
           </button>
           <div>
-            <h1 className="text-3xl font-black text-gray-900 leading-tight tracking-tighter">Edit Story</h1>
-            <p className="text-gray-400 font-medium text-sm">Refine your masterpiece.</p>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white leading-tight tracking-tighter">Edit Story</h1>
+            <p className="text-gray-400 dark:text-gray-500 font-medium text-sm">Refine your masterpiece.</p>
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm">
+        <div className="flex items-center space-x-3 bg-white dark:bg-white/5 p-2 rounded-xl border border-gray-100 dark:border-white/10 shadow-sm">
           <button
             onClick={() => setShowPreview(true)}
             disabled={!isFormValid}
             className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center space-x-2
-              ${isFormValid ? 'text-gray-600 hover:bg-gray-50' : 'text-gray-300 cursor-not-allowed'}`}
+              ${isFormValid ? 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5' : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
           >
             <AiOutlineEye size={16} />
             <span>Review</span>
@@ -287,7 +287,7 @@ const EditPost = () => {
             onClick={() => initiateSubmit('draft')}
             disabled={isLoading || !isFormValid}
             className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center space-x-2
-              ${isFormValid && !isLoading ? 'bg-gray-50 text-gray-900 hover:bg-gray-100' : 'bg-gray-50 text-gray-300 cursor-not-allowed'}`}
+              ${isFormValid && !isLoading ? 'bg-gray-50 dark:bg-white/10 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/20' : 'bg-gray-50 dark:bg-white/5 text-gray-300 dark:text-gray-600 cursor-not-allowed'}`}
           >
             <AiOutlineSave size={16} />
             <span>Save Draft</span>
@@ -296,7 +296,7 @@ const EditPost = () => {
             onClick={() => initiateSubmit('published')}
             disabled={isLoading || !isFormValid}
             className={`px-6 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center space-x-3 shadow-xl
-              ${isFormValid && !isLoading ? 'bg-[#8C0202] text-white shadow-red-900/20 hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-transparent'}`}
+              ${isFormValid && !isLoading ? 'bg-[#8C0202] text-white shadow-red-900/20 hover:-translate-y-0.5' : 'bg-gray-200 dark:bg-white/5 text-gray-400 dark:text-gray-600 cursor-not-allowed shadow-transparent'}`}
           >
             <AiOutlineSend size={16} />
             <span>{isLoading ? 'Updating...' : 'Update & Publish'}</span>
@@ -308,12 +308,12 @@ const EditPost = () => {
       <div className="flex flex-col xl:flex-row gap-8">
         {/* Left: Input Area */}
         <div className="flex-1 space-y-8">
-          <div className="bg-white rounded-xl border border-gray-100 p-8 shadow-sm space-y-8">
+          <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-100 dark:border-white/10 p-8 shadow-sm space-y-8 transition-colors">
             {/* Image Upload Area */}
             <div
               onClick={() => fileInputRef.current.click()}
               className={`relative w-full h-64 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center overflow-hidden
-                        ${imagePreview ? 'border-transparent' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'}`}
+                        ${imagePreview ? 'border-transparent' : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-white/5'}`}
             >
               <input
                 type="file"
@@ -332,12 +332,12 @@ const EditPost = () => {
                 </>
               ) : (
                 <div className="text-center space-y-4">
-                  <div className="w-16 h-16 bg-gray-50 rounded-xl mx-auto flex items-center justify-center text-gray-300">
+                  <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-xl mx-auto flex items-center justify-center text-gray-300 dark:text-gray-600 font-bold border dark:border-white/10">
                     <AiOutlineCloudUpload size={32} />
                   </div>
                   <div>
-                    <p className="text-sm font-black text-gray-900">Upload Featured Image</p>
-                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Optimal size: 1600 x 900px</p>
+                    <p className="text-sm font-black text-gray-900 dark:text-white">Upload Featured Image</p>
+                    <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mt-1">Optimal size: 1600 x 900px</p>
                   </div>
                 </div>
               )}
@@ -345,13 +345,13 @@ const EditPost = () => {
 
             <div className="space-y-6">
               <input
-                className="w-full text-4xl md:text-5xl font-black text-[#1C1D36] border-none outline-none placeholder:text-gray-200 p-0 focus:ring-0 tracking-tighter"
+                className="w-full text-4xl md:text-5xl font-black text-[#1C1D36] dark:text-white bg-transparent border-none outline-none placeholder:text-gray-200 dark:placeholder:text-gray-700 p-0 focus:ring-0 tracking-tighter"
                 placeholder="Story Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
               <div className="flex items-center space-x-4">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Category:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-300 dark:text-gray-600">Category:</span>
                 <CustomDropdown
                   selected={tags}
                   options={categories}
@@ -375,14 +375,14 @@ const EditPost = () => {
 
         {/* Right Sidebar: Meta Settings */}
         <div className="w-full xl:w-80 flex flex-col space-y-6">
-          <div className="bg-white rounded-xl border border-gray-100 p-8 shadow-sm space-y-8">
-            <h3 className="text-xs font-black uppercase tracking-[0.3em] text-[#1C1D36]">Post Settings</h3>
-            <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Post ID</p>
-              <p className="text-sm font-black text-[#1C1D36]">#{postId}</p>
+          <div className="bg-white dark:bg-[#0A0A0A] rounded-xl border border-gray-100 dark:border-white/10 p-8 shadow-sm space-y-8 transition-colors">
+            <h3 className="text-xs font-black uppercase tracking-[0.3em] text-[#1C1D36] dark:text-white">Post Settings</h3>
+            <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Post ID</p>
+              <p className="text-sm font-black text-[#1C1D36] dark:text-white">#{postId}</p>
             </div>
-            <div className="p-6 bg-gray-50 rounded-xl border border-gray-100">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Current Status</p>
+            <div className="p-6 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-100 dark:border-white/5">
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Current Status</p>
               <p className={`text-sm font-black uppercase tracking-wide ${originalStatus === 'published' ? 'text-emerald-600' : 'text-amber-500'}`}>{originalStatus}</p>
             </div>
           </div>
@@ -390,26 +390,26 @@ const EditPost = () => {
 
         {/* Live Preview Overlay */}
         {showPreview && (
-          <div className="fixed inset-0 bg-[#F0F2F5] z-[200] overflow-y-auto p-12 lg:p-24 flex justify-center animate-fade-in">
+          <div className="fixed inset-0 bg-[#F0F2F5] dark:bg-black z-[200] overflow-y-auto p-4 lg:p-24 flex justify-center animate-fade-in transition-colors duration-300">
             <button
               onClick={() => setShowPreview(false)}
-              className="fixed top-12 right-12 w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-2xl shadow-black/10 hover:scale-110 transition-transform"
+              className="fixed top-8 right-8 w-12 h-12 bg-white dark:bg-[#0A0A0A] text-gray-900 dark:text-white rounded-full flex items-center justify-center shadow-2xl border dark:border-white/10 hover:scale-110 transition-transform z-[210]"
             >
-              <AiOutlineClose size={24} />
+              <AiOutlineClose size={20} />
             </button>
 
-            <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl p-16 lg:p-24 space-y-12 overflow-hidden min-h-screen">
+            <div className="max-w-4xl w-full bg-white dark:bg-[#0A0A0A] rounded-2xl shadow-2xl p-8 lg:p-24 space-y-12 overflow-hidden min-h-screen border dark:border-white/10 transition-colors">
               {imagePreview && (
-                <img src={imagePreview} className="w-full aspect-video object-cover rounded-xl" alt="" />
+                <img src={imagePreview} className="w-full aspect-video object-cover rounded-xl shadow-2xl" alt="" />
               )}
               <div className="space-y-6">
-                <h1 className="text-6xl font-black text-[#1C1D36] tracking-tighter leading-none">{title}</h1>
+                <h1 className="text-4xl lg:text-6xl font-black text-[#1C1D36] dark:text-white tracking-tighter leading-tight lg:leading-none">{title}</h1>
                 <div className="flex items-center space-x-4">
                   <span className="px-4 py-2 bg-[#FFD770] rounded-lg text-[10px] font-black uppercase tracking-widest text-[#1C1D36]">{tags}</span>
                 </div>
               </div>
               <div
-                className="prose prose-xl max-w-none text-gray-800 leading-relaxed"
+                className="prose prose-xl dark:prose-invert max-w-none text-gray-800 dark:text-gray-200 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             </div>
@@ -429,19 +429,36 @@ const EditPost = () => {
         .quill-custom .ql-editor {
             min-height: 500px;
             font-size: 1.15rem;
-            color: #1a1a1a;
+            color: inherit;
             line-height: 1.8;
             padding: 0;
         }
+        .dark .quill-custom .ql-editor.ql-blank::before {
+            color: #4b5563;
+        }
         .quill-custom .ql-toolbar.ql-snow {
             border: none;
-            background: white;
+            background: transparent;
             position: sticky;
             top: 0;
             z-index: 10;
             padding: 10px 0;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 2px solid #f3f4f6;
             margin-bottom: 40px;
+            transition: all 0.3s;
+        }
+        .dark .quill-custom .ql-toolbar.ql-snow {
+            border-bottom-color: rgba(255,255,255,0.05);
+            background: #0A0A0A;
+        }
+        .dark .ql-snow .ql-stroke {
+            stroke: #9ca3af;
+        }
+        .dark .ql-snow .ql-fill {
+            fill: #9ca3af;
+        }
+        .dark .ql-snow .ql-picker {
+            color: #9ca3af;
         }
         .quill-custom .ql-container.ql-snow {
             border: none;

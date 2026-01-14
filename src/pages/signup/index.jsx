@@ -36,12 +36,12 @@ const SignUp = () => {
       <Outlet />
       <div className='flex items-center bg-[#b91c1c] overflow-hidden h-screen'>
         {/* <div className={classes.bg}>
-          <img src={lorenzoTvImg} alt="lorenzoTV img" />
+          <img src={lorenzoTvImg} alt="lorenzoBlog img" />
           <div><p className="text-white text-[20px] text-center font-[700] mt-4">create an account and become part of this space</p></div>
         </div> */}
         <div className="w-[50%] hidden lg:flex md:flex flex-col justify-center space-y-[2rem] overflow-hidden">
-            <img src={lorenzoTvImg} className="w-[77%]" alt="lorenzoTV img" />
-            <div><p className="text-white text-[20px] text-center font-[700] mt-4">Join Us On The Journey Of Ideas And Discovery</p></div>
+          <img src={lorenzoTvImg} className="w-[77%]" alt="lorenzoBlog img" />
+          <div><p className="text-white text-[20px] text-center font-[700] mt-4">Join Us On The Journey Of Ideas And Discovery</p></div>
         </div>
         <div className={`${classes.formBg} h-screen overflow-y-auto overflow-x-hidden w-[100%] md:w-[50%] lg:w-[50%] rounded-bl-none rounded-tl-none lg:rounded-l-[61px] md:rounded-l-[61px]`}>
           <div className='text-center mb-[]'>

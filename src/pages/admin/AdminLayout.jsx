@@ -16,7 +16,7 @@ import {
     AiOutlineInfoCircle,
     AiOutlineBarChart
 } from "react-icons/ai";
-import { IoChevronDownOutline, IoChevronForwardOutline, IoNotificationsOutline } from "react-icons/io5";
+import { IoChevronDownOutline, IoChevronForwardOutline, IoNotificationsOutline, IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 import logoWhite from "../../assets/logo_white.png";
 import moment from "moment";
 
@@ -31,6 +31,18 @@ const AdminLayout = () => {
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
     const notificationRef = useRef(null);
     const { fetchRequest } = useFetch();
+    const [isDarkMode, setIsDarkMode] = useState(() => {
+        return localStorage.getItem('adminDarkMode') === 'true';
+    });
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('adminDarkMode', isDarkMode);
+    }, [isDarkMode]);
 
     // Data State
     const [categories, setCategories] = useState([]);
@@ -136,7 +148,7 @@ const AdminLayout = () => {
     const unreadCount = notifications.filter(n => !n.is_read).length;
 
     return (
-        <div className="flex h-screen bg-[#F5F5F7] overflow-hidden font-sans">
+        <div className={`flex h-screen overflow-hidden font-sans ${isDarkMode ? 'dark bg-black' : 'bg-[#F5F5F7]'}`}>
             {/* Sidebar Overlay */}
             {isSidebarOpen && (
                 <div
@@ -148,7 +160,7 @@ const AdminLayout = () => {
             {/* Sidebar */}
             <aside className={`
                 fixed inset-y-0 left-0 w-80 bg-[#0C0C0C] flex flex-col h-full z-50 transition-transform duration-300 ease-in-out
-                md:relative md:translate-x-0
+                md:relative md:translate-x-0 border-r border-white/5
                 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}>
                 <div className="p-6 border-b border-white/[0.06] flex justify-center">
@@ -249,9 +261,9 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col min-w-0 bg-[#FAFAFA]">
+            <main className="flex-1 flex flex-col min-w-0 bg-[#FAFAFA] dark:bg-black transition-colors duration-300">
                 {/* Header */}
-                <header className="h-[64px] px-8 flex items-center justify-between bg-white border-b border-gray-200/60 shrink-0 sticky top-0 z-30">
+                <header className="h-[64px] px-8 flex items-center justify-between bg-white dark:bg-black border-b border-gray-200/60 dark:border-white/10 shrink-0 sticky top-0 z-30 transition-colors duration-300">
                     <div className="flex items-center space-x-4">
                         <button
                             className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded transition-colors"
@@ -260,18 +272,18 @@ const AdminLayout = () => {
                             <AiOutlineMenu size={20} />
                         </button>
                         <div className="hidden md:block">
-                            <h2 className="text-lg font-bold text-gray-900 tracking-tight">Admin Dashboard</h2>
+                            <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">Admin Dashboard</h2>
                         </div>
                     </div>
 
                     <div className="flex items-center space-x-6">
                         <div className="relative hidden md:block w-64">
-                            <div className="flex bg-gray-50 rounded-lg px-3 h-9 items-center border border-gray-200 hover:border-gray-300 transition-colors">
+                            <div className="flex bg-gray-50 dark:bg-white/5 rounded-lg px-3 h-9 items-center border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors">
                                 <AiOutlineSearch className="text-gray-400" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search..."
-                                    className="bg-transparent border-none outline-none text-[13px] font-medium text-gray-800 w-full ml-2 placeholder:text-gray-400"
+                                    className="bg-transparent border-none outline-none text-[13px] font-medium text-gray-800 dark:text-white w-full ml-2 placeholder:text-gray-400"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     onFocus={() => { if (searchTerm.length > 1 && searchResults.length > 0) setShowSearchResults(true); }}
@@ -308,64 +320,75 @@ const AdminLayout = () => {
                             )}
                         </div>
 
-                        <div className="relative" ref={notificationRef}>
+                        <div className="flex items-center space-x-2">
+                            {/* Dark Mode Toggle */}
                             <button
-                                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all relative
-                                    ${isNotificationOpen ? 'bg-gray-100 text-gray-900' : 'bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                                onClick={() => setIsDarkMode(!isDarkMode)}
+                                className="w-9 h-9 rounded-full flex items-center justify-center bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-all hover:text-[#8C0202]"
+                                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                             >
-                                <IoNotificationsOutline size={22} />
-                                {unreadCount > 0 && <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#8C0202] rounded-full ring-2 ring-white"></span>}
+                                {isDarkMode ? <IoSunnyOutline size={20} /> : <IoMoonOutline size={20} />}
                             </button>
 
-                            {isNotificationOpen && (
-                                <div className="absolute right-0 mt-3 w-96 bg-white rounded-xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-50 animate-slide-down overflow-hidden">
-                                    <div className="p-4 border-b border-gray-50 flex items-center justify-between">
-                                        <h3 className="text-[13px] font-bold text-gray-900">Notifications</h3>
-                                        <button className="text-[11px] font-semibold text-[#8C0202] hover:underline">Mark all read</button>
-                                    </div>
-                                    <div className="max-h-[320px] overflow-y-auto">
-                                        {notifications.map((n) => (
-                                            <div key={n.id} className={`p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer flex items-start space-x-3 ${!n.is_read ? 'bg-blue-50/10' : ''}`}>
-                                                <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shrink-0 mt-0.5">
-                                                    <AiOutlineInfoCircle size={14} />
-                                                </div>
-                                                <div className="space-y-1 min-w-0">
-                                                    <p className={`text-[12px] ${!n.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'} leading-snug`}>{n.message}</p>
-                                                    <p className="text-[10px] font-medium text-gray-400">{moment(n.created_at).fromNow()}</p>
-                                                </div>
-                                                {!n.is_read && <div className="w-1.5 h-1.5 bg-[#8C0202] rounded-full mt-2 shrink-0"></div>}
-                                            </div>
-                                        ))}
-                                        {notifications.length === 0 && (
-                                            <div className="p-8 text-center text-gray-400 text-xs">No notifications.</div>
-                                        )}
-                                    </div>
-                                    <div className="p-2 border-t border-gray-50 bg-gray-50/30">
-                                        <button className="w-full py-2 text-[11px] font-bold text-gray-700 hover:text-[#8C0202] transition-colors rounded hover:bg-gray-100">
-                                            View All Activity
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                            <div className="relative" ref={notificationRef}>
+                                <button
+                                    onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                                    className={`w-9 h-9 rounded-full flex items-center justify-center transition-all relative
+                                        ${isNotificationOpen ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'bg-white dark:bg-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
+                                >
+                                    <IoNotificationsOutline size={22} />
+                                    {unreadCount > 0 && <span className="absolute top-1.5 right-2 w-2 h-2 bg-[#8C0202] rounded-full ring-2 ring-white dark:ring-black"></span>}
+                                </button>
 
-                        <div className="h-6 w-px bg-gray-200"></div>
-
-                        <div className="flex items-center space-x-3 cursor-pointer group">
-                            <div className="w-9 h-9 bg-[#8C0202] text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-transparent group-hover:ring-[#8C0202]/20 transition-all">
-                                {loggedInUser?.username?.[0] || 'A'}
+                                {isNotificationOpen && (
+                                    <div className="absolute right-0 mt-3 w-96 bg-white rounded-xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.08)] z-50 animate-slide-down overflow-hidden">
+                                        <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+                                            <h3 className="text-[13px] font-bold text-gray-900">Notifications</h3>
+                                            <button className="text-[11px] font-semibold text-[#8C0202] hover:underline">Mark all read</button>
+                                        </div>
+                                        <div className="max-h-[320px] overflow-y-auto">
+                                            {notifications.map((n) => (
+                                                <div key={n.id} className={`p-4 border-b border-gray-50 hover:bg-gray-50/50 transition-colors cursor-pointer flex items-start space-x-3 ${!n.is_read ? 'bg-blue-50/10' : ''}`}>
+                                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 shrink-0 mt-0.5">
+                                                        <AiOutlineInfoCircle size={14} />
+                                                    </div>
+                                                    <div className="space-y-1 min-w-0">
+                                                        <p className={`text-[12px] ${!n.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-700'} leading-snug`}>{n.message}</p>
+                                                        <p className="text-[10px] font-medium text-gray-400">{moment(n.created_at).fromNow()}</p>
+                                                    </div>
+                                                    {!n.is_read && <div className="w-1.5 h-1.5 bg-[#8C0202] rounded-full mt-2 shrink-0"></div>}
+                                                </div>
+                                            ))}
+                                            {notifications.length === 0 && (
+                                                <div className="p-8 text-center text-gray-400 text-xs">No notifications.</div>
+                                            )}
+                                        </div>
+                                        <div className="p-2 border-t border-gray-50 bg-gray-50/30">
+                                            <button className="w-full py-2 text-[11px] font-bold text-gray-700 hover:text-[#8C0202] transition-colors rounded hover:bg-gray-100">
+                                                View All Activity
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                            <div className="hidden sm:block text-left">
-                                <p className="text-[12px] font-bold text-gray-900 leading-none mb-0.5">{loggedInUser?.username || 'Admin User'}</p>
-                                <p className="text-[10px] font-medium text-gray-400 leading-none">Super Admin</p>
+
+                            <div className="h-6 w-px bg-gray-200 dark:bg-white/10"></div>
+
+                            <div className="flex items-center space-x-3 cursor-pointer group">
+                                <div className="w-9 h-9 bg-[#8C0202] text-white rounded-full flex items-center justify-center text-sm font-bold shadow-sm ring-2 ring-transparent group-hover:ring-[#8C0202]/20 transition-all">
+                                    {loggedInUser?.username?.[0] || 'A'}
+                                </div>
+                                <div className="hidden sm:block text-left">
+                                    <p className="text-[12px] font-bold text-gray-900 dark:text-white leading-none mb-0.5">{loggedInUser?.username || 'Admin User'}</p>
+                                    <p className="text-[10px] font-medium text-gray-400 leading-none">Super Admin</p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </header>
 
-                <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar bg-[#FAFAFA]">
-                    <Outlet context={{ searchTerm }} />
+                <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar bg-[#FAFAFA] dark:bg-black transition-colors duration-300">
+                    <Outlet context={{ searchTerm, isDarkMode }} />
                 </div>
             </main>
 

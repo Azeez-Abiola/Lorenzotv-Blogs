@@ -57,7 +57,7 @@ const Login = () => {
 
         <div className="z-10 flex flex-col items-center animate-fade-in-up">
           <div className="w-[300px] mb-8 drop-shadow-2xl">
-            <img src={lorenzoTvImg2} alt="Lorenzo TV" className="w-full object-contain" />
+            <img src={lorenzoTvImg2} alt="Lorenzo Blog" className="w-full object-contain" />
           </div>
           <h2 className="text-white text-3xl font-bold text-center mb-4 tracking-wide">Welcome Back!</h2>
           <p className="text-white/80 text-lg text-center font-medium max-w-md leading-relaxed">
@@ -70,7 +70,7 @@ const Login = () => {
       <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-8 lg:p-24 relative bg-gray-50">
         {/* Mobile Header (Visible only on small screens) */}
         <div className="lg:hidden mb-8 w-32">
-          <img src={lorenzoTvImg2} alt="Lorenzo TV" className="w-full" />
+          <img src={lorenzoTvImg2} alt="Lorenzo Blog" className="w-full" />
         </div>
 
         {/* Increased width from max-w-md to max-w-xl as requested */}
