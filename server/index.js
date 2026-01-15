@@ -548,23 +548,45 @@ app.patch('/api/blogs/:id', async (req, res) => {
 // Delete Blog (Protected)
 app.delete('/api/blogs/:id', async (req, res) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        const authHeader = req.headers.authorization;
+        console.log("Delete Request Auth Header:", authHeader);
+        const token = authHeader?.split(' ')[1];
         if (!token) return res.status(401).json({ message: 'No token provided' });
 
         const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-        if (authError || !user) return res.status(401).json({ message: 'Invalid token' });
+        if (authError || !user) {
+            console.log("Auth Error:", authError);
+            return res.status(401).json({ message: `Invalid token: ${authError?.message || 'User not found'}` });
+        }
 
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
         if (profile?.role !== 'admin') return res.status(403).json({ message: 'Admins only' });
 
-        const { error } = await supabase
+        console.log("Attempting to delete blog with ID:", req.params.id);
+
+        // Only select 'id' to avoid returning massive base64 image data
+        const { data: deletedData, error } = await supabase
             .from('blogs')
             .delete()
-            .eq('id', req.params.id);
+            .eq('id', req.params.id)
+            .select('id');
 
-        if (error) throw error;
+        console.log("Delete result - deleted IDs:", deletedData?.map(d => d.id), "error:", error);
+
+        if (error) {
+            console.log("Delete error:", error);
+            throw error;
+        }
+
+        if (!deletedData || deletedData.length === 0) {
+            console.log("No rows were deleted. RLS policy may be blocking the delete.");
+            return res.status(400).json({ message: 'Delete failed. No rows affected. Check RLS policies.' });
+        }
+
+        console.log("Successfully deleted blog ID:", deletedData[0].id);
         res.status(204).send();
     } catch (err) {
+        console.log("Delete catch error:", err);
         res.status(400).json({ status: 'fail', message: err.message });
     }
 });

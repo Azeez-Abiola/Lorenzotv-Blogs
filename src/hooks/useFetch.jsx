@@ -59,7 +59,22 @@ const useFetch = () => {
         // TODO: Handle responseBody
         getRequestData(responseBody);
       } catch (err) {
-        console.log(err);
+        console.log("Fetch Error:", err.message);
+
+        // Handle expired token or unauthorized access
+        if (err.message.toLowerCase().includes("expired") || err.message.toLowerCase().includes("401")) {
+          // Clear authentication data
+          document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+          localStorage.removeItem("loggedInUser");
+
+          // Optionally redirect to login if we are in an admin route
+          if (window.location.pathname.startsWith('/admin')) {
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 2000);
+          }
+        }
+
         // If an error occured, set the error state
         dispatchFn({
           type: "ERROR",

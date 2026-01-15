@@ -153,7 +153,9 @@ const ManagePosts = () => {
         const name = 'jwt';
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) {
+
+        if (parts.length >= 2) {
+            // If multiple cookies exist, parts.pop() gets the last one (most likely correct due to browser behavior)
             let token = parts.pop().split(';').shift();
             try {
                 token = decodeURIComponent(token);
@@ -177,19 +179,24 @@ const ManagePosts = () => {
             return;
         }
 
+        console.log("Deleting post with ID:", deleteId);
+        console.log("Token present:", !!token);
+
         await fetchRequest({
             url: `${import.meta.env.VITE_API_BASE_URL}/blogs/${deleteId}`,
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
-        }, (res) => {
+        }, () => {
+            // Success callback - called even for 204 No Content
+            console.log("Delete successful!");
             setIsActionLoading(false);
             toast.success("Post deleted successfully!");
             setDeleteId(null);
             fetchAllPosts();
         });
 
-        // Reset loading if fetch fails (useFetch error logic handles UI but we need to reset here too)
-        setTimeout(() => setIsActionLoading(false), 2000);
+        // Reset loading after timeout as fallback
+        setTimeout(() => setIsActionLoading(false), 3000);
     };
 
     const handleEditConfirm = () => {
