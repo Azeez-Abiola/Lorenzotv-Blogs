@@ -154,7 +154,7 @@ const Blogpost = () => {
       <Navigation />
 
       {/* Article Header */}
-      <div className="max-w-4xl mx-auto pt-40 px-6">
+      <div className="max-w-4xl mx-auto pt-32 md:pt-40 px-6">
         <div className="flex items-center space-x-3 mb-6">
           <span className="px-3 py-1 bg-red-50 text-[#8C0202] text-[10px] font-extrabold uppercase tracking-widest rounded-lg">
             {Array.isArray(post.tags) ? post.tags[0] : (post.tags || "General")}
@@ -165,7 +165,7 @@ const Blogpost = () => {
           </span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-8">
+        <h1 className="text-3xl md:text-6xl font-extrabold text-gray-900 leading-tight mb-8 tracking-tight">
           {post.title}
         </h1>
 
@@ -204,14 +204,39 @@ const Blogpost = () => {
       {/* Hero Image */}
       {post.image_url && (
         <div className="max-w-6xl mx-auto px-6 mb-16">
-          <img className='w-full h-[60vh] object-cover rounded-[3rem] shadow-2xl shadow-black/10' src={post.image_url} alt="Featured" />
+          <img className='w-full h-auto md:h-[60vh] aspect-video md:aspect-auto object-cover rounded-2xl md:rounded-[3rem] shadow-2xl shadow-black/10' src={post.image_url} alt="Featured" />
         </div>
       )}
 
       {/* Content */}
-      <article className="max-w-3xl mx-auto px-6 mb-24">
+      <article className="max-w-4xl mx-auto px-6 mb-24 blog-content-area">
+        <style>{`
+          .blog-content-area p {
+            font-size: 1.25rem !important;
+            line-height: 2 !important;
+            margin-bottom: 2rem !important;
+            color: #374151 !important;
+          }
+          @media (min-width: 768px) {
+            .blog-content-area p {
+              font-size: 1.5rem !important;
+            }
+          }
+          .blog-content-area h2 {
+            font-size: 2.25rem !important;
+            font-weight: 900 !important;
+            margin-top: 4rem !important;
+            margin-bottom: 1.5rem !important;
+            line-height: 1.2 !important;
+          }
+          .blog-content-area img {
+            border-radius: 1.5rem !important;
+            margin: 3rem 0 !important;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1) !important;
+          }
+        `}</style>
         <div
-          className='text-gray-800 text-lg leading-[1.8] space-y-8 prose prose-lg prose-red max-w-none prose-img:rounded-3xl prose-headings:font-black prose-a:text-[#8C0202]'
+          className='text-gray-800 leading-[1.8] space-y-8'
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
 

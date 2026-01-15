@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import logoWhite from "../../assets/logo_white.png";
 import useFetch from "../../hooks/useFetch";
@@ -103,38 +104,55 @@ const Navigation = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={`fixed inset-0 bg-gray-950 z-[100] flex flex-col items-center justify-center p-12 transition-all duration-500 lg:hidden
-        ${isNavOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}>
-        <button
-          className="absolute top-8 right-8 text-white text-3xl"
-          onClick={() => setIsNavOpen(false)}
-        >
-          <FaTimes />
-        </button>
-        <div className="flex flex-col items-center space-y-8">
-          {['Home', 'Founder\'s Series', 'About Us'].map((item) => (
-            <Link
-              key={item}
-              to={item === 'Home' ? '/' : `/${item.toLowerCase().replace('\'', '').replace(' ', '')}`}
-              className="text-3xl font-black text-white hover:text-[#8C0202] transition-all tracking-tight"
+      {/* Mobile Menu Overlay - Move to Portal to avoid parent styles/opacity */}
+      {isNavOpen && createPortal(
+        <div className="fixed inset-0 bg-white z-[999] flex flex-col animate-fade-in lg:hidden h-screen w-screen overflow-hidden">
+          {/* Mobile menu header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shrink-0">
+            <Link to="/" onClick={() => setIsNavOpen(false)}>
+              <img className="h-8 brightness-0" src={logoWhite} alt="Lorenzo TV" />
+            </Link>
+            <button
+              className="text-2xl text-gray-900 p-2"
               onClick={() => setIsNavOpen(false)}
             >
-              {item}
-            </Link>
-          ))}
-          <div className="w-12 h-1 bg-[#8C0202] my-4" />
-          <button
-            className="text-white text-lg font-bold uppercase tracking-widest"
-            onClick={() => {
-              setIsNavOpen(false);
-              setShowNewsletterModal(true);
-            }}
-          >
-            Subscribe
-          </button>
-        </div>
-      </div>
+              <FaTimes />
+            </button>
+          </div>
+
+          {/* Links */}
+          <div className="flex-1 flex flex-col items-center justify-center space-y-12 p-12 bg-white">
+            {['Home', 'Founder\'s Series', 'About Us'].map((item) => (
+              <Link
+                key={item}
+                to={item === 'Home' ? '/' : (item === 'About Us' ? '/about' : '/founderseries')}
+                className="text-5xl font-black text-gray-950 hover:text-[#8C0202] transition-all tracking-tighter"
+                onClick={() => setIsNavOpen(false)}
+              >
+                {item}
+              </Link>
+            ))}
+
+            <div className="w-20 h-1.5 bg-[#8C0202] my-4 rounded-full" />
+
+            <button
+              onClick={() => {
+                setIsNavOpen(false);
+                setShowNewsletterModal(true);
+              }}
+              className="w-full max-w-xs py-6 bg-[#8C0202] text-white rounded-[2rem] text-sm font-black uppercase tracking-widest shadow-2xl shadow-red-900/30 active:scale-95 transition-all"
+            >
+              Subscribe
+            </button>
+          </div>
+
+          {/* Footer info in mobile menu */}
+          <div className="p-8 text-center border-t border-gray-100 bg-white shrink-0">
+            <p className="text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]">© 2026 Lorenzo TV Media</p>
+          </div>
+        </div>,
+        document.body
+      )}
     </header>
   );
 };

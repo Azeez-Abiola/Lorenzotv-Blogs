@@ -39,19 +39,19 @@ function Founderseries() {
   }, [loadFoundersPosts, loadRelatedPosts]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className='min-h-screen bg-white overflow-x-hidden max-w-full'>
       <Navigation />
 
       {/* Hero Header */}
-      <section className="pt-48 pb-24 px-8 text-center bg-gray-950 border-b border-white/5 overflow-hidden relative">
+      <section className="pt-32 md:pt-48 pb-16 md:pb-24 px-6 md:px-8 text-center bg-gray-950 border-b border-white/5 overflow-hidden relative">
         <div className="max-w-4xl mx-auto relative z-10 animate-fade-in">
-          <div className="inline-block px-4 py-1.5 bg-[#8C0202]/10 border border-[#8C0202]/20 text-[#8C0202] text-[10px] font-black uppercase tracking-[0.3em] rounded-lg mb-8">
+          <div className="inline-block px-4 py-1.5 bg-[#8C0202]/10 border border-[#8C0202]/20 text-[#8C0202] text-[10px] font-black uppercase tracking-[0.3em] rounded-lg mb-6 md:mb-8">
             The Masterclass
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-white leading-tight mb-8 tracking-tighter">
+          <h1 className="text-4xl md:text-7xl font-black text-white leading-tight mb-6 md:mb-8 tracking-tighter">
             Founder's <span className="text-[#8C0202]">Series</span>
           </h1>
-          <p className="text-xl text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-400 font-medium leading-relaxed max-w-2xl mx-auto">
             In-depth conversations with visionaries who are reshaping the African landscape.
           </p>
         </div>
@@ -72,12 +72,12 @@ function Founderseries() {
             <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">No stories found in this series yet.</p>
           </div>
         ) : (
-          <div className='flex flex-col space-y-40'>
+          <div className='flex flex-col space-y-20 md:space-y-40'>
             {posts.map((post, idx) => (
               <ScrollReveal key={post.id} direction={idx % 2 === 0 ? "left" : "right"} delay={idx * 100}>
-                <div className={`flex flex-col md:flex-row items-center gap-16 group ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
+                <div className={`flex flex-col md:flex-row items-center gap-10 md:gap-16 group ${idx % 2 !== 0 ? 'md:flex-row-reverse' : ''}`}>
                   <div className="flex-1 w-full">
-                    <div className="relative overflow-hidden rounded-[3rem] shadow-2xl transition-all duration-700 group-hover:shadow-[#8C0202]/20 group-hover:-translate-y-4">
+                    <div className="relative overflow-hidden rounded-2xl md:rounded-[3rem] shadow-2xl transition-all duration-700 group-hover:shadow-[#8C0202]/20 group-hover:-translate-y-4">
                       <img
                         src={post.image_url || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop'}
                         alt={post.title}

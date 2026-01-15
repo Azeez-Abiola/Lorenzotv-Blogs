@@ -62,6 +62,7 @@ const App = () => {
           <Route path="/posts/:postId" element={<Blogpost />} />
           <Route path="/founderseries" element={<Founderseries />} />
           <Route path="/about" element={<Aboutus />} />
+          <Route path="/aboutus" element={<Aboutus />} />
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />

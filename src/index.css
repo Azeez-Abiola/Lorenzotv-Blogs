@@ -3,6 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+
+  html,
+  body {
+    @apply overflow-x-hidden;
+    width: 100%;
+    position: relative;
+  }
+
   body {
     @apply bg-[#FAFAFA] text-[#1A1A1A] antialiased selection:bg-[#8C0202]/20 selection:text-[#8C0202];
     font-family: 'Inter', system-ui, -apple-system, sans-serif;

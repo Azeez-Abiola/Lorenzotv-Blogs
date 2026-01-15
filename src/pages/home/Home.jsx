@@ -140,7 +140,7 @@ const Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA]">
+    <div className="min-h-screen bg-[#FAFAFA] overflow-x-hidden max-w-full">
       <Navigation />
 
       {/* Hero Section */}
