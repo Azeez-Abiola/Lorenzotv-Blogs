@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { FaBars, FaTimes, FaChevronDown } from "react-icons/fa";
 import logoWhite from "../../assets/logo_white.png";
 import useFetch from "../../hooks/useFetch";
+import { AppContext } from "../../store/AppContext";
 
 const Navigation = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
@@ -10,6 +11,7 @@ const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState([]);
 
+  const { setShowNewsletterModal } = useContext(AppContext);
   const location = useLocation();
   const isHomePage = location.pathname === '/' || location.pathname === '/posts';
   const { fetchRequest } = useFetch();
@@ -38,7 +40,7 @@ const Navigation = () => {
     <header className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 
       ${!isTransparent ? "bg-white/90 backdrop-blur-xl border-b border-gray-100 py-4 shadow-sm" : "bg-transparent py-6"}`}>
 
-      <div className="max-w-[1440px] mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
 
         {/* Left: Logo */}
         <Link to="/" className="flex items-center shrink-0">
@@ -82,21 +84,14 @@ const Navigation = () => {
           </div>
         </nav>
 
-        {/* Right: Auth */}
+        {/* Right: Subscribe */}
         <div className="flex items-center space-x-8">
-          <Link
-            to="/login"
-            className={`text-[11px] font-black uppercase tracking-[0.2em] transition-all hover:text-[#8C0202] hidden md:block
-            ${isTransparent ? "text-white" : "text-gray-900"}`}
+          <button
+            onClick={() => setShowNewsletterModal(true)}
+            className="md:px-10 px-6 py-3.5 bg-[#8C0202] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#6b0202] hover:-translate-y-0.5 transition-all shadow-xl shadow-red-950/20 active:scale-95"
           >
-            Sign In
-          </Link>
-          <Link
-            to="/signup"
-            className="md:px-8 px-5 py-3 bg-[#8C0202] text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] hover:bg-[#6b0202] transition-all shadow-lg shadow-red-950/20 active:scale-95"
-          >
-            Get Started
-          </Link>
+            Subscribe
+          </button>
 
           {/* Mobile Toggle */}
           <button
@@ -129,13 +124,15 @@ const Navigation = () => {
             </Link>
           ))}
           <div className="w-12 h-1 bg-[#8C0202] my-4" />
-          <Link
-            to="/login"
-            className="text-white text-lg font-bold"
-            onClick={() => setIsNavOpen(false)}
+          <button
+            className="text-white text-lg font-bold uppercase tracking-widest"
+            onClick={() => {
+              setIsNavOpen(false);
+              setShowNewsletterModal(true);
+            }}
           >
-            Sign In
-          </Link>
+            Subscribe
+          </button>
         </div>
       </div>
     </header>

@@ -6,10 +6,12 @@ import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner';
 import { CiHeart } from "react-icons/ci";
 import { IoMdHeart } from "react-icons/io";
 import { TfiComment } from "react-icons/tfi";
-import { Resentpost } from '../../components/smallComponents/Smallcomponents';
+import { FaHeart, FaComment } from "react-icons/fa";
 import useFetch from '../../hooks/useFetch';
 import moment from "moment";
 import { toast } from 'react-toastify';
+import ScrollReveal from '../../components/ScrollReveal/ScrollReveal';
+import { BlogPostSkeleton } from '../../components/Skeletons/Skeletons';
 
 const Blogpost = () => {
   const { postId } = useParams();
@@ -19,7 +21,11 @@ const Blogpost = () => {
   const [comments, setComments] = useState([]);
   const [commentContent, setCommentContent] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
-  const { fetchRequest, isLoading } = useFetch();
+  const [relatedPosts, setRelatedPosts] = useState([]);
+  const { fetchRequest, isLoading, error } = useFetch();
+  const { fetchRequest: fetchRelated } = useFetch();
+
+  const [guestName, setGuestName] = useState("");
 
   // Check if user is logged in
   const getCookie = (name) => {
@@ -35,7 +41,7 @@ const Blogpost = () => {
       if (res.status === 'success') {
         const blogData = res.data.blog;
         setPost(blogData);
-        setLikesCount(Math.floor(Math.random() * 200) + 50); // Mock likes
+        setLikesCount(blogData.views || 0);
       }
     });
 
@@ -45,7 +51,16 @@ const Blogpost = () => {
         setComments(res.data.comments || []);
       }
     });
-  }, [fetchRequest, postId]);
+
+    // Fetch Related Posts
+    fetchRelated({ url: `${import.meta.env.VITE_API_BASE_URL}/blogs?limit=4` }, (res) => {
+      if (res.status === 'success') {
+        // Filter out the current post
+        const filtered = (res.data.blogs || []).filter(p => p.id !== parseInt(postId));
+        setRelatedPosts(filtered.slice(0, 3));
+      }
+    });
+  }, [fetchRequest, fetchRelated, postId]);
 
   useEffect(() => {
     fetchPostData();
@@ -67,13 +82,11 @@ const Blogpost = () => {
     setIsSubmittingComment(true);
 
     try {
-      // Get token if user is logged in (optional)
       const token = getCookie('jwt');
       const headers = {
         'Content-Type': 'application/json'
       };
 
-      // Add authorization if token exists
       if (token) {
         try {
           headers['Authorization'] = `Bearer ${decodeURIComponent(token)}`;
@@ -87,13 +100,14 @@ const Blogpost = () => {
         method: 'POST',
         body: {
           content: commentContent,
-          author_name: 'Guest'
+          author_name: guestName.trim() || 'Anonymous'
         },
         headers
       }, (res) => {
         if (res.status === 'success') {
-          toast.success("Comment posted!");
+          toast.success("Comment posted! It will be visible after approval.");
           setCommentContent("");
+          setGuestName("");
           // Refresh comments
           fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/blogs/${postId}/comments` }, (refreshRes) => {
             if (refreshRes.status === 'success') setComments(refreshRes.data.comments || []);
@@ -107,25 +121,28 @@ const Blogpost = () => {
     }
   };
 
-  if (isLoading && !post) {
+  // Show skeleton while loading
+  if (isLoading || (!post && !error.hasError)) {
     return (
       <div className="min-h-screen bg-white">
         <Navigation />
-        <div className="flex justify-center items-center h-[70vh]">
-          <LoadingSpinner type="full" />
-        </div>
+        <BlogPostSkeleton />
         <Footer />
       </div>
     );
   }
 
-  if (!post) {
+  // Show error only after loading completes and post is still null
+  if (!isLoading && !post) {
     return (
       <div className="min-h-screen bg-white">
         <Navigation />
         <div className="flex flex-col justify-center items-center h-[70vh] text-center px-6">
-          <h1 className="text-4xl font-black text-gray-900 mb-4">Story Not Found</h1>
-          <p className="text-gray-400 font-medium">The article you are looking for doesn't exist or has been removed.</p>
+          <h1 className="text-4xl font-black text-gray-900 mb-4 tracking-tighter">Story Not Found</h1>
+          <p className="text-gray-400 font-medium max-w-sm">The article you are looking for doesn't exist or has been removed from our database.</p>
+          <Link to="/" className="mt-8 px-8 py-3 bg-gray-950 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#8C0202] transition-colors">
+            Back to Home
+          </Link>
         </div>
         <Footer />
       </div>
@@ -216,41 +233,39 @@ const Blogpost = () => {
           </div>
 
           <div className='space-y-12'>
-            {/* Comment Form */}
+            {/* Comment Form - Open to Everyone */}
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
-              {isLoggedIn ? (
-                <form onSubmit={handlePostComment}>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-10 h-10 bg-[#8C0202] rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
-                      You
-                    </div>
-                    <div className="flex-1">
-                      <textarea
-                        value={commentContent}
-                        onChange={(e) => setCommentContent(e.target.value)}
-                        placeholder="Share your thoughts..."
-                        className="w-full h-32 p-4 bg-gray-50 border-none rounded-2xl resize-none focus:ring-2 focus:ring-[#8C0202]/10 focus:bg-white transition-all text-sm font-medium"
-                      />
-                      <div className="flex justify-end mt-4">
-                        <button
-                          type="submit"
-                          disabled={isSubmittingComment || !commentContent.trim()}
-                          className="px-8 py-3 bg-[#1C1D36] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#8C0202] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isSubmittingComment ? 'Posting...' : 'Post Comment'}
-                        </button>
-                      </div>
+              <form onSubmit={handlePostComment}>
+                <div className="flex items-start space-x-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center text-gray-500 font-bold text-sm shrink-0">
+                    {guestName ? guestName[0].toUpperCase() : '?'}
+                  </div>
+                  <div className="flex-1 space-y-4">
+                    <input
+                      type="text"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      placeholder="Your name (optional)"
+                      className="w-full p-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-[#8C0202]/10 focus:bg-white transition-all text-sm font-medium"
+                    />
+                    <textarea
+                      value={commentContent}
+                      onChange={(e) => setCommentContent(e.target.value)}
+                      placeholder="Share your thoughts..."
+                      className="w-full h-32 p-4 bg-gray-50 border-none rounded-2xl resize-none focus:ring-2 focus:ring-[#8C0202]/10 focus:bg-white transition-all text-sm font-medium"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={isSubmittingComment || !commentContent.trim()}
+                        className="px-8 py-3 bg-[#1C1D36] text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#8C0202] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmittingComment ? 'Posting...' : 'Post Comment'}
+                      </button>
                     </div>
                   </div>
-                </form>
-              ) : (
-                <div className="text-center py-6">
-                  <p className="text-gray-500 font-medium mb-4">Please log in to join the conversation.</p>
-                  <Link to="/login" className="px-6 py-3 bg-gray-900 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#8C0202] transition-colors">
-                    Log In / Sign Up
-                  </Link>
                 </div>
-              )}
+              </form>
             </div>
 
             {/* Comments List */}
@@ -284,11 +299,44 @@ const Blogpost = () => {
         </div>
       </section>
 
-      {/* Recommended */}
-      <div className="py-24 max-w-7xl mx-auto px-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-10">You may also like</h3>
-        <Resentpost />
-      </div>
+      {/* You May Also Like - REAL DATA */}
+      {relatedPosts.length > 0 && (
+        <section className="py-24 border-t border-gray-100">
+          <div className="max-w-7xl mx-auto px-6">
+            <ScrollReveal direction="bottom">
+              <h3 className="text-2xl font-black text-gray-900 mb-12 tracking-tight">You May Also Like</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {relatedPosts.map((relatedPost) => (
+                  <Link key={relatedPost.id} to={`/posts/${relatedPost.id}`} className="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-2">
+                    <div className="aspect-[16/10] overflow-hidden">
+                      <img
+                        src={relatedPost.image_url || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=400'}
+                        alt={relatedPost.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <span className="text-[10px] font-black text-[#8C0202] uppercase tracking-widest">
+                        {Array.isArray(relatedPost.tags) ? relatedPost.tags[0] : (relatedPost.tags || 'General')}
+                      </span>
+                      <h4 className="text-lg font-bold text-gray-900 mt-2 line-clamp-2 group-hover:text-[#8C0202] transition-colors">
+                        {relatedPost.title}
+                      </h4>
+                      <p className="text-gray-500 text-sm mt-2 line-clamp-2">
+                        {relatedPost.content?.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                      </p>
+                      <div className="flex items-center gap-4 mt-4 text-gray-400 text-xs">
+                        <span className="flex items-center gap-1"><FaHeart className="text-[#8C0202]" /> {relatedPost.views || 0}</span>
+                        <span className="flex items-center gap-1"><FaComment /> {relatedPost.comment_count || 0}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>

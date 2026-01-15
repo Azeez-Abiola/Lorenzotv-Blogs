@@ -55,8 +55,14 @@ const PostItem = ({ post }) => {
             </div>
 
             <div className="flex items-center gap-6 text-gray-400">
-              <span className="flex items-center gap-1.5 text-[10px] font-bold"><FaHeart className="text-[#8C0202]" /> 15.8k</span>
-              <span className="flex items-center gap-1.5 text-[10px] font-bold"><FaComment /> 11.2k</span>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold">
+                <FaHeart className="text-[#8C0202]" />
+                {post.views > 1000 ? `${(post.views / 1000).toFixed(1)}k` : (post.views || 0)}
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] font-bold">
+                <FaComment />
+                {post.comment_count > 1000 ? `${(post.comment_count / 1000).toFixed(1)}k` : (post.comment_count || 0)}
+              </span>
             </div>
           </div>
         </div>
@@ -64,6 +70,37 @@ const PostItem = ({ post }) => {
     </Link>
   );
 };
+
+import { PostCardSkeleton } from "../Skeletons/Skeletons";
+
+const PostItemSkeleton = () => (
+  <div className="flex flex-col md:flex-row gap-10 items-start animate-pulse mb-16 last:mb-0">
+    <div className="w-full md:w-[45%] aspect-[4/3] rounded-2xl bg-gray-200 shadow-lg shadow-black/5"></div>
+    <div className="flex-1 space-y-5 py-4 w-full">
+      <div className="flex items-center gap-4">
+        <div className="h-2 w-20 bg-gray-200 rounded"></div>
+        <div className="w-1 h-1 bg-gray-200 rounded-full"></div>
+        <div className="h-2 w-24 bg-gray-200 rounded"></div>
+      </div>
+      <div className="h-8 w-full bg-gray-200 rounded-lg"></div>
+      <div className="h-8 w-3/4 bg-gray-200 rounded-lg"></div>
+      <div className="space-y-2 mt-4">
+        <div className="h-4 w-full bg-gray-100 rounded"></div>
+        <div className="h-4 w-5/6 bg-gray-100 rounded"></div>
+      </div>
+      <div className="pt-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div className="h-3 w-20 bg-gray-200 rounded"></div>
+        </div>
+        <div className="flex items-center gap-6">
+          <div className="h-3 w-8 bg-gray-200 rounded"></div>
+          <div className="h-3 w-8 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 const AllPosts = ({
   title,
@@ -90,15 +127,17 @@ const AllPosts = ({
       />
     </div>
   ) : (
-    <div className="">
+    <div className="max-w-7xl mx-auto px-6">
       <div className="mb-14">
         <h2 className="text-4xl font-black text-gray-950 tracking-tighter mb-4">{title}</h2>
-        <p className="text-gray-500 font-medium">Get started today and take your reading experience wherever you go!</p>
+        <p className="text-gray-500 font-medium">Insights and stories that matter to you. Discover our latest publications.</p>
       </div>
 
-      {isLoading && !postsPerPage.length ? (
-        <div className="py-20 flex justify-center">
-          <LoadingSpinner className="" type="full" />
+      {isLoading ? (
+        <div className="space-y-12 mb-16">
+          <PostItemSkeleton />
+          <PostItemSkeleton />
+          <PostItemSkeleton />
         </div>
       ) : (
         <>

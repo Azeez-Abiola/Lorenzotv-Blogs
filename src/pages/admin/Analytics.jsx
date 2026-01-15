@@ -105,15 +105,11 @@ const Analytics = () => {
     });
 
     const fetchData = useCallback(() => {
-        // Fetch Growth
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/analytics/growth` }, (res) => {
+        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/analytics/summary` }, (res) => {
             if (res.status === 'success') {
                 setGrowthData(res.data.growth || []);
+                setStats(res.data.stats || {});
             }
-        });
-        // Fetch Stats
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/stats` }, (res) => {
-            if (res.status === 'success') setStats(res.data);
         });
     }, [fetchRequest]);
 

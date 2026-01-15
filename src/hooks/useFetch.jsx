@@ -27,22 +27,32 @@ const useFetch = () => {
 
   // A function to fetch data
   const fetchRequest = useCallback(
-    async (requestConfig, getRequestData = (responseBody) => {}) => {
+    async (requestConfig, getRequestData = (responseBody) => { }) => {
       dispatchFn({ type: "LOADING", value: true });
       dispatchFn({ type: "ERROR", value: { hasError: false, message: "" } });
       dispatchFn({ type: "SUCCESS", value: false });
       try {
+        const headers = { ...requestConfig.headers };
+        if (requestConfig.body) {
+          headers["Content-Type"] = "application/json";
+        }
+
         // Fetching data using the configuration provided
         const response = await fetch(requestConfig.url, {
           method: requestConfig.method ? requestConfig.method : "GET",
           body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
-          headers: requestConfig.headers ? requestConfig.headers : {},
+          headers: headers,
         });
-        // Get response data
-        const responseBody = await response.json();
+        // Check if response is empty (e.g., 204 No Content)
+        let responseBody = null;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          responseBody = await response.json();
+        }
         // If the response is not ok, throw an error
         if (!response.ok) {
-          throw new Error(responseBody.message);
+          const errorMessage = responseBody?.message || responseBody?.error || `Error: ${response.status} ${response.statusText}`;
+          throw new Error(errorMessage);
         }
         dispatchFn({ type: "SUCCESS", value: true });
 

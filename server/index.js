@@ -86,19 +86,19 @@ app.post('/api/auth/signin', async (req, res) => {
 // Get All Blogs
 app.get('/api/blogs', async (req, res) => {
     try {
-        const { page = 1, limit = 6, tags, status } = req.query;
+        const { page = 1, limit = 6, tags, status, query: searchQuery } = req.query;
         const { from, to } = getPagination(page, limit);
 
         let query = supabase
             .from('blogs')
-            .select('id, title, image_url, tags, status, views, created_at, author_id, profiles(username, avatar_url)', { count: 'exact' })
+            .select('id, title, image_url, tags, status, views, created_at, author_id, profiles(username, avatar_url), comments(count)', { count: 'exact' })
+            .eq('comments.status', 'approved')
             .order('created_at', { ascending: false })
             .range(from, to);
 
         if (status && status.toLowerCase() !== 'all') {
             query = query.eq('status', status);
         } else if (!status) {
-            // Default: only show published posts (for public site)
             query = query.eq('status', 'published');
         }
 
@@ -106,11 +106,21 @@ app.get('/api/blogs', async (req, res) => {
             query = query.contains('tags', [tags]);
         }
 
+        if (searchQuery) {
+            query = query.ilike('title', `%${searchQuery}%`);
+        }
+
         const { data, error, count } = await query;
 
         if (error) throw error;
 
-        res.status(200).json({ status: 'success', results: count, data: { blogs: data } });
+        // Simplify comment count structure
+        const blogsWithCounts = data.map(blog => ({
+            ...blog,
+            comment_count: blog.comments?.[0]?.count || 0
+        }));
+
+        res.status(200).json({ status: 'success', results: count, data: { blogs: blogsWithCounts } });
     } catch (err) {
         res.status(400).json({ status: 'fail', message: err.message });
     }
@@ -120,15 +130,30 @@ app.get('/api/blogs', async (req, res) => {
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const { id } = req.params;
+
+        // Increment views - improved error handling
+        try {
+            const { error: rpcError } = await supabase.rpc('increment_views', { blog_id: parseInt(id) });
+            if (rpcError) console.error("RPC Error (increment_views):", rpcError);
+        } catch (err) {
+            console.error("RPC catch block:", err);
+        }
+
         const { data, error } = await supabase
             .from('blogs')
-            .select('*, profiles(username, avatar_url)')
+            .select('*, profiles(username, avatar_url), comments(count)')
             .eq('id', id)
             .single();
 
         if (error) throw error;
 
-        res.status(200).json({ status: 'success', data: { blog: data } });
+        // Add comment count
+        const blog = {
+            ...data,
+            comment_count: data.comments?.[0]?.count || 0
+        };
+
+        res.status(200).json({ status: 'success', data: { blog } });
     } catch (err) {
         res.status(404).json({ status: 'fail', message: err.message });
     }
@@ -142,6 +167,7 @@ app.get('/api/blogs/:id/comments', async (req, res) => {
             .from('comments')
             .select('*, profiles(username, avatar_url)')
             .eq('blog_id', id)
+            .eq('status', 'approved')
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -222,6 +248,38 @@ app.get('/api/admin/comments', async (req, res) => {
     }
 });
 
+// Moderate Comment (Approve/Reject)
+app.patch('/api/admin/comments/:id', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const { data, error } = await supabase
+            .from('comments')
+            .update({ status })
+            .eq('id', req.params.id)
+            .select();
+
+        if (error) throw error;
+        res.status(200).json({ status: 'success', data: data[0] });
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Delete Comment
+app.delete('/api/admin/comments/:id', async (req, res) => {
+    try {
+        const { error } = await supabase
+            .from('comments')
+            .delete()
+            .eq('id', req.params.id);
+
+        if (error) throw error;
+        res.status(204).send();
+    } catch (err) {
+        res.status(400).json({ status: 'fail', message: err.message });
+    }
+});
+
 // Get Stats (Admin only)
 app.get('/api/admin/stats', async (req, res) => {
     try {
@@ -277,20 +335,6 @@ app.get('/api/admin/recent-comments', async (req, res) => {
     }
 });
 
-// Get All Comments (Admin only)
-app.get('/api/admin/comments', async (req, res) => {
-    try {
-        const { data, error } = await supabase
-            .from('comments')
-            .select('*, profiles(username, avatar_url), blogs(title)')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-        res.status(200).json({ status: 'success', data: data || [] });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
 
 // Create Blog (Protected)
 app.post('/api/blogs', async (req, res) => {
@@ -328,46 +372,139 @@ app.post('/api/blogs', async (req, res) => {
     }
 });
 
-// Get Growth Analytics (Admin only)
-app.get('/api/admin/analytics/growth', async (req, res) => {
+// Combined Dashboard Summary (Admin)
+app.get('/api/admin/dashboard-summary', async (req, res) => {
     try {
-        const { data: blogs, error } = await supabase.from('blogs').select('created_at');
-        if (error) throw error;
+        // [1] Stats
+        const statsPromise = (async () => {
+            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, viewsDataRes, categoriesRes] = await Promise.all([
+                supabase.from('blogs').select('*', { count: 'exact', head: true }),
+                supabase.from('blogs').select('*', { count: 'exact', head: true }).not('image_url', 'is', null),
+                supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('blogs').select('views'),
+                supabase.from('categories').select('*', { count: 'exact', head: true })
+            ]);
 
-        // Aggregate by Month
+            const totalArticles = totalArticlesRes.count || 0;
+            const totalMedia = totalMediaRes.count || 0;
+            const pendingCommentsCount = pendingCommentsRes.count || 0;
+            const totalViewsCount = viewsDataRes.data?.reduce((acc, b) => acc + (parseInt(b.views) || 0), 0) || 0;
+            const totalCategories = categoriesRes.count || 0;
+
+            return {
+                totalArticles,
+                totalCategories,
+                totalMedia,
+                pendingComments: pendingCommentsCount,
+                totalViews: totalViewsCount > 1000 ? `${(totalViewsCount / 1000).toFixed(1)}k` : totalViewsCount
+            };
+        })();
+
+        // [2] Recent Posts
+        const recentPostsPromise = supabase
+            .from('blogs')
+            .select('id, title, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        // [3] Recent Comments
+        const recentCommentsPromise = supabase
+            .from('comments')
+            .select('*, profiles(username, avatar_url), blogs(title)')
+            .order('created_at', { ascending: false })
+            .limit(5);
+
+        // [4] Growth (Post volume)
+        const growthPromise = supabase.from('blogs').select('created_at');
+
+        // [5] Engagement (Comment volume)
+        const engagementPromise = supabase.from('comments').select('created_at');
+
+        const [stats, recentPosts, recentComments, growthRaw, engagementRaw] = await Promise.all([
+            statsPromise, recentPostsPromise, recentCommentsPromise, growthPromise, engagementPromise
+        ]);
+
+        // Process Analytics
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const counts = {};
+        const processByMonth = (items, key = 'created_at') => {
+            const counts = {};
+            items.forEach(item => {
+                if (item[key]) {
+                    const date = new Date(item[key]);
+                    const m = months[date.getMonth()];
+                    counts[m] = (counts[m] || 0) + 1;
+                }
+            });
+            return months.map(m => ({ month: m, value: counts[m] || 0 }));
+        };
 
-        blogs.forEach(blog => {
-            const date = new Date(blog.created_at);
-            const key = months[date.getMonth()];
-            counts[key] = (counts[key] || 0) + 1;
+        const growthData = processByMonth(growthRaw.data || []).map(d => ({ month: d.month, posts: d.value }));
+        const engagementData = processByMonth(engagementRaw.data || []);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                stats,
+                recentPosts: recentPosts.data || [],
+                recentComments: recentComments.data || [],
+                growth: growthData,
+                engagement: engagementData
+            }
         });
-
-        // Format for Chart
-        const data = months.map(m => ({ month: m, posts: counts[m] || 0 }));
-        res.status(200).json({ status: 'success', data: { growth: data } });
     } catch (err) {
         res.status(500).json({ status: 'fail', message: err.message });
     }
 });
 
-// Get Engagement Analytics (Comments Volume)
-app.get('/api/admin/analytics/engagement', async (req, res) => {
+// Consolidated Analytics Summary (Admin)
+app.get('/api/admin/analytics/summary', async (req, res) => {
     try {
-        const { data: comments, error } = await supabase.from('comments').select('created_at');
-        if (error) throw error;
+        const statsPromise = (async () => {
+            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, categoriesRes] = await Promise.all([
+                supabase.from('blogs').select('*', { count: 'exact', head: true }),
+                supabase.from('blogs').select('*', { count: 'exact', head: true }).not('image_url', 'is', null),
+                supabase.from('comments').select('*', { count: 'exact', head: true }),
+                supabase.from('categories').select('*', { count: 'exact', head: true })
+            ]);
+            return {
+                totalArticles: totalArticlesRes.count || 0,
+                totalMedia: totalMediaRes.count || 0,
+                pendingComments: pendingCommentsRes.count || 0,
+                totalCategories: categoriesRes.count || 0
+            };
+        })();
+
+        const growthPromise = supabase.from('blogs').select('created_at');
+        const engagementPromise = supabase.from('comments').select('created_at');
+
+        const [stats, growthRaw, engagementRaw] = await Promise.all([
+            statsPromise, growthPromise, engagementPromise
+        ]);
 
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const counts = {};
-        comments.forEach(c => {
-            const date = new Date(c.created_at);
-            const key = months[date.getMonth()];
-            counts[key] = (counts[key] || 0) + 1;
-        });
+        const processByMonth = (items, key = 'created_at') => {
+            const counts = {};
+            items.forEach(item => {
+                if (item[key]) {
+                    const date = new Date(item[key]);
+                    const m = months[date.getMonth()];
+                    counts[m] = (counts[m] || 0) + 1;
+                }
+            });
+            return months.map(m => ({ month: m, value: counts[m] || 0 }));
+        };
 
-        const data = months.map(m => ({ month: m, value: counts[m] || 0 }));
-        res.status(200).json({ status: 'success', data: { engagement: data } });
+        const growthData = processByMonth(growthRaw.data || []).map(d => ({ month: d.month, posts: d.value }));
+        const engagementData = processByMonth(engagementRaw.data || []);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                stats,
+                growth: growthData,
+                engagement: engagementData
+            }
+        });
     } catch (err) {
         res.status(500).json({ status: 'fail', message: err.message });
     }
@@ -501,27 +638,6 @@ app.get('/api/admin/global-search', async (req, res) => {
     }
 });
 
-// Get All Categories (Unique Tags)
-app.get('/api/categories', async (req, res) => {
-    try {
-        // First try to fetch from categories table if it exists
-        const { data: categoriesData, error: catError } = await supabase.from('categories').select('name, slug');
-
-        if (!catError && categoriesData && categoriesData.length > 0) {
-            // If categories table exists, return category names
-            const categoryNames = categoriesData.map(cat => cat.name || cat.slug);
-            return res.status(200).json({ status: 'success', data: { categories: categoryNames } });
-        }
-
-        // Otherwise, extract unique tags from blogs
-        const { data } = await supabase.from('blogs').select('tags');
-        const allTags = data?.reduce((acc, curr) => [...acc, ...(curr.tags || [])], []) || [];
-        const uniqueTags = [...new Set(allTags)]; // Filter unique
-        res.status(200).json({ status: 'success', data: { categories: uniqueTags } });
-    } catch (err) {
-        res.status(500).json({ status: 'fail', message: err.message });
-    }
-});
 
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production') {

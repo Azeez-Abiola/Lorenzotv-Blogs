@@ -43,12 +43,25 @@ const PreviewPostModal = ({ isOpen, onClose, post }) => {
     );
 };
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 'danger' }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 'danger', isLoading = false }) => {
     if (!isOpen) return null;
     const isDanger = type === 'danger';
-    const Icon = isDanger ? AiOutlineWarning : AiOutlineQuestionCircle;
-    const colorClass = isDanger ? 'bg-red-50 text-[#8C0202]' : 'bg-blue-50 text-blue-600';
-    const btnClass = isDanger ? 'bg-[#8C0202] hover:bg-[#6B0101]' : 'bg-gray-900 hover:bg-gray-800';
+    const isSuccess = type === 'success';
+    const isInfo = type === 'info';
+
+    let Icon = AiOutlineQuestionCircle;
+    let colorClass = 'bg-blue-50 text-blue-600';
+    let btnClass = 'bg-gray-900 hover:bg-gray-800';
+
+    if (isDanger) {
+        Icon = AiOutlineWarning;
+        colorClass = 'bg-red-50 text-[#8C0202]';
+        btnClass = 'bg-[#8C0202] hover:bg-[#6B0101]';
+    } else if (isSuccess) {
+        Icon = AiOutlineCheckCircle;
+        colorClass = 'bg-emerald-50 text-emerald-600';
+        btnClass = 'bg-emerald-600 hover:bg-emerald-700';
+    }
 
     return createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 animate-fade-in">
@@ -63,11 +76,19 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
                         {message}
                     </p>
                     <div className="grid grid-cols-2 gap-3">
-                        <button onClick={onClose} className="h-10 rounded-lg border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent">
+                        <button
+                            disabled={isLoading}
+                            onClick={onClose}
+                            className="h-10 rounded-lg border border-gray-200 dark:border-white/10 text-[11px] font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent disabled:opacity-50"
+                        >
                             Cancel
                         </button>
-                        <button onClick={onConfirm} className={`h-10 rounded-lg text-[11px] font-bold text-white uppercase tracking-wider transition-all shadow-lg ${btnClass}`}>
-                            Confirm
+                        <button
+                            disabled={isLoading}
+                            onClick={onConfirm}
+                            className={`h-10 rounded-lg text-[11px] font-bold text-white uppercase tracking-wider transition-all shadow-lg flex items-center justify-center ${btnClass} disabled:opacity-50`}
+                        >
+                            {isLoading ? <LoadingSpinner size="sm" color="white" /> : 'Confirm'}
                         </button>
                     </div>
                 </div>
@@ -79,6 +100,27 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
 
 // --- Main Component ---
 
+const ManagePostsSkeleton = () => (
+    <div className="bg-white dark:bg-[#0A0A0A] rounded-lg border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm animate-pulse">
+        <div className="h-12 bg-gray-50 dark:bg-white/[0.02] border-b border-gray-200 dark:border-white/10"></div>
+        {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="px-6 py-4 flex items-center justify-between border-b border-gray-100 dark:border-white/5">
+                <div className="flex items-center space-x-3 w-1/3">
+                    <div className="w-10 h-10 bg-gray-100 dark:bg-white/5 rounded"></div>
+                    <div className="h-4 bg-gray-100 dark:bg-white/5 w-32 rounded"></div>
+                </div>
+                <div className="h-4 bg-gray-100 dark:bg-white/5 w-20 rounded"></div>
+                <div className="h-4 bg-gray-100 dark:bg-white/5 w-20 rounded"></div>
+                <div className="h-4 bg-gray-100 dark:bg-white/5 w-32 rounded"></div>
+                <div className="flex space-x-2">
+                    <div className="w-8 h-8 bg-gray-50 dark:bg-white/5 rounded"></div>
+                    <div className="w-8 h-8 bg-gray-50 dark:bg-white/5 rounded"></div>
+                </div>
+            </div>
+        ))}
+    </div>
+);
+
 const ManagePosts = () => {
     const [posts, setPosts] = useState([]);
     const [activeTab, setActiveTab] = useState("all");
@@ -87,6 +129,7 @@ const ManagePosts = () => {
     const [previewPost, setPreviewPost] = useState(null);
     const [deleteId, setDeleteId] = useState(null);
     const [editId, setEditId] = useState(null);
+    const [isActionLoading, setIsActionLoading] = useState(false);
 
     const { searchTerm } = useOutletContext();
     const { isLoading, error, fetchRequest } = useFetch();
@@ -106,37 +149,54 @@ const ManagePosts = () => {
 
     // -- Handlers --
 
+    const getAuthToken = () => {
+        const name = 'jwt';
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            let token = parts.pop().split(';').shift();
+            try {
+                token = decodeURIComponent(token);
+                if (token.startsWith('Bearer ')) token = token.replace('Bearer ', '');
+                return token;
+            } catch (e) {
+                return token;
+            }
+        }
+        return null;
+    };
+
     const handleDelete = async () => {
         if (!deleteId) return;
-        const deleteResponse = () => {
-            toast.success("Post deleted successfully!");
-            fetchAllPosts();
-            setDeleteId(null);
-        };
+        setIsActionLoading(true);
 
-        // Auth token logic
-        const getCookie = (name) => {
-            const value = `; ${document.cookie}`;
-            const parts = value.split(`; ${name}=`);
-            if (parts.length === 2) return parts.pop().split(';').shift();
-            return null;
-        };
-        let token = getCookie('jwt');
-        if (token) {
-            try { token = decodeURIComponent(token); } catch (e) { }
+        const token = getAuthToken();
+        if (!token) {
+            toast.error("Session expired. Please login again.");
+            setIsActionLoading(false);
+            return;
         }
 
         await fetchRequest({
             url: `${import.meta.env.VITE_API_BASE_URL}/blogs/${deleteId}`,
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
-        }, deleteResponse);
+        }, (res) => {
+            setIsActionLoading(false);
+            toast.success("Post deleted successfully!");
+            setDeleteId(null);
+            fetchAllPosts();
+        });
+
+        // Reset loading if fetch fails (useFetch error logic handles UI but we need to reset here too)
+        setTimeout(() => setIsActionLoading(false), 2000);
     };
 
     const handleEditConfirm = () => {
         if (editId) {
-            navigate(`/admin/posts/${editId}/edit`);
+            const idToEdit = editId;
             setEditId(null);
+            navigate(`/admin/posts/${idToEdit}/edit`);
         }
     };
 
@@ -201,7 +261,7 @@ const ManagePosts = () => {
             </div>
 
             {isLoading && !posts.length ? (
-                <div className="flex justify-center py-20"><LoadingSpinner type="full" /></div>
+                <ManagePostsSkeleton />
             ) : (
                 <div className="bg-white dark:bg-[#0A0A0A] rounded-lg border border-gray-200/80 dark:border-white/10 overflow-hidden shadow-sm transition-colors">
                     <div className="overflow-x-auto">
@@ -295,6 +355,7 @@ const ManagePosts = () => {
                 onClose={() => setDeleteId(null)}
                 onConfirm={handleDelete}
                 type="danger"
+                isLoading={isActionLoading}
             />
 
             <ConfirmationModal

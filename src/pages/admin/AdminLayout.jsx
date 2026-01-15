@@ -81,16 +81,16 @@ const AdminLayout = () => {
 
     // Fetch Sidebar Data & Notifications
     useEffect(() => {
-        const loadData = async () => {
+        const loadData = () => {
             // Fetch Categories
-            await fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/categories` }, (res) => {
+            fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/categories` }, (res) => {
                 if (res.status === 'success') {
                     setCategories(res.data.categories);
                 }
             });
 
             // Fetch Notifications
-            await fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/notifications` }, (res) => {
+            fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/notifications` }, (res) => {
                 if (res.status === 'success') {
                     setNotifications(res.data.notifications || []);
                 }

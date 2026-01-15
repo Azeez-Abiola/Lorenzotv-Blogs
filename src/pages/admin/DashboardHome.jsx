@@ -170,41 +170,59 @@ const EngagementChart = ({ data }) => {
     )
 };
 
+const DashboardSkeleton = () => (
+    <div className="space-y-6 animate-pulse">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-gray-100 h-32 rounded-lg"></div>
+            ))}
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="bg-gray-100 h-64 rounded-lg"></div>
+            <div className="bg-gray-100 h-64 rounded-lg"></div>
+        </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="bg-gray-100 h-80 rounded-lg"></div>
+            <div className="bg-gray-100 h-80 rounded-lg"></div>
+        </div>
+    </div>
+);
+
 const DashboardHome = () => {
     const { searchTerm } = useOutletContext();
     const [stats, setStats] = useState({
         totalArticles: 0,
         totalCategories: 0,
         totalMedia: 0,
-        pendingComments: 0
+        pendingComments: 0,
+        totalViews: 0
     });
     const [recentPosts, setRecentPosts] = useState([]);
     const [recentComments, setRecentComments] = useState([]);
     const [growthData, setGrowthData] = useState([]);
     const [engagementData, setEngagementData] = useState([]);
-    const { fetchRequest } = useFetch();
+    const { isLoading, error, fetchRequest } = useFetch();
 
-    const fetchAllData = useCallback(() => {
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/stats` }, (res) => {
-            if (res.status === 'success') setStats(res.data);
-        });
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/blogs?limit=4&status=All` }, (res) => {
-            if (res.status === 'success') setRecentPosts(res.data.blogs || []);
-        });
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/recent-comments` }, (res) => {
-            if (res.status === 'success') setRecentComments(res.data || []);
-        });
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/analytics/growth` }, (res) => {
-            if (res.status === 'success') setGrowthData(res.data.growth || []);
-        });
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/analytics/engagement` }, (res) => {
-            if (res.status === 'success') setEngagementData(res.data.engagement || []);
+    const fetchDashboardData = useCallback(() => {
+        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/dashboard-summary` }, (res) => {
+            if (res.status === 'success') {
+                const { stats, recentPosts, recentComments, growth, engagement } = res.data;
+                setStats(stats);
+                setRecentPosts(recentPosts);
+                setRecentComments(recentComments);
+                setGrowthData(growth);
+                setEngagementData(engagement);
+            }
         });
     }, [fetchRequest]);
 
     useEffect(() => {
-        fetchAllData();
-    }, [fetchAllData]);
+        fetchDashboardData();
+    }, [fetchDashboardData]);
+
+    if (isLoading && !recentPosts.length) {
+        return <DashboardSkeleton />;
+    }
 
     const filteredPosts = recentPosts.filter(post =>
         post.title.toLowerCase().includes(searchTerm?.toLowerCase() || "")
@@ -237,9 +255,9 @@ const DashboardHome = () => {
                     iconBg="bg-gray-50"
                 />
                 <MetricCard
-                    title="Media Files"
-                    value={stats.totalMedia}
-                    icon={<AiOutlinePicture />}
+                    title="Total Views"
+                    value={stats.totalViews}
+                    icon={<AiOutlineEye />}
                     trend="up"
                     trendValue="22.1"
                     iconBg="bg-gray-50"

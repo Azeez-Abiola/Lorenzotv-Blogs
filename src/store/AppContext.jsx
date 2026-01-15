@@ -16,6 +16,7 @@ const AppContextProvider = ({ children }) => {
   const [isLoggedIn, setIsLogggedIn] = useState(false);
   const [totalPosts, setTotalPosts] = useState(0);
   const [postsPerPage, setPostsPerPage] = useState([]);
+  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
 
   useEffect(() => {
     const getCookie = (name) => {
@@ -65,6 +66,8 @@ const AppContextProvider = ({ children }) => {
     updateTotalPosts,
     updateLoggedInState,
     updatePostsPerPage,
+    showNewsletterModal,
+    setShowNewsletterModal,
   };
   return <AppContext.Provider value={data}>{children}</AppContext.Provider>;
 };

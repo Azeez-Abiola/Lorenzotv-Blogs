@@ -16,6 +16,7 @@ import Founderseries from "./pages/founderseries/Founderseries";
 import Aboutus from "./pages/aboutus/Aboutus";
 import Blogpost from "./pages/blogpost/Blogpost";
 import Profile from "./pages/profile/Profile";
+import NewsletterModal from "./components/NewsletterModal/NewsletterModal";
 
 // Admin Imports
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -64,6 +65,7 @@ const App = () => {
 
           {/* Auth Routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
           <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route path="/resetPassword" element={<ResetPassword />} />
 
@@ -82,6 +84,7 @@ const App = () => {
           {/* Page Not Found */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <NewsletterModal />
       </Suspense>
     </ErrorBoundary>
   );
