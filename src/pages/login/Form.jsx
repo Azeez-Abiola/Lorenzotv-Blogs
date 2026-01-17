@@ -87,67 +87,77 @@ const Form = ({ onSubmit, error, isLoading, success }) => {
 
   return (
     <form className='w-full space-y-6' onSubmit={submitHandler}>
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Email Input */}
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#8C0202] transition-colors">
-            <AiOutlineMail className="text-xl" />
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block ml-1">Email Address</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#8C0202] transition-colors">
+              <AiOutlineMail className="text-xl" />
+            </div>
+            <input
+              id="email"
+              name="email"
+              type="text"
+              placeholder="name@example.com"
+              value={form.email}
+              onChange={handleChange}
+              className={`w-full pl-12 pr-4 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all font-medium text-gray-800 placeholder:text-gray-300
+                      ${isTouched.email && !form.emailIsValid
+                  ? 'border-red-300 focus:border-red-500 bg-red-50/30'
+                  : 'border-transparent focus:border-[#8C0202]/20 focus:bg-white hover:bg-gray-100'}`}
+            />
           </div>
-          <input
-            id="email"
-            name="email"
-            type="text"
-            placeholder="Email Address"
-            value={form.email}
-            onChange={handleChange}
-            className={`w-full pl-10 pr-4 py-3 bg-gray-50 border-2 rounded-xl outline-none transition-all font-medium text-gray-700
-                    ${isTouched.email && !form.emailIsValid
-                ? 'border-red-400 focus:border-red-500 bg-red-50'
-                : 'border-transparent focus:border-[#8C0202] focus:bg-white hover:bg-white hover:border-gray-200'}`}
-          />
           {isTouched.email && !form.emailIsValid && (
-            <p className="text-red-500 text-xs mt-1 ml-1 font-medium">Please provide a valid email.</p>
+            <p className="text-red-500 text-xs mt-2 ml-1 font-bold flex items-center gap-1">
+              <span className="w-1 h-1 bg-red-500 rounded-full"></span> Invalid email address
+            </p>
           )}
         </div>
 
         {/* Password Input */}
         <div className="relative group">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#8C0202] transition-colors">
-            <AiOutlineLock className="text-xl" />
-          </div>
-          <input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={form.password}
-            onChange={handleChange}
-            className={`w-full pl-10 pr-12 py-3 bg-gray-50 border-2 rounded-xl outline-none transition-all font-medium text-gray-700
-                    ${isTouched.password && !form.passwordIsValid
-                ? 'border-red-400 focus:border-red-500 bg-red-50'
-                : 'border-transparent focus:border-[#8C0202] focus:bg-white hover:bg-white hover:border-gray-200'}`}
-          />
-          <div
-            className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? <AiFillEyeInvisible className="text-xl" /> : <AiFillEye className="text-xl" />}
+          <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block ml-1">Password</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-[#8C0202] transition-colors">
+              <AiOutlineLock className="text-xl" />
+            </div>
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              value={form.password}
+              onChange={handleChange}
+              className={`w-full pl-12 pr-12 py-4 bg-gray-50 border-2 rounded-2xl outline-none transition-all font-medium text-gray-800 placeholder:text-gray-300
+                      ${isTouched.password && !form.passwordIsValid
+                  ? 'border-red-300 focus:border-red-500 bg-red-50/30'
+                  : 'border-transparent focus:border-[#8C0202]/20 focus:bg-white hover:bg-gray-100'}`}
+            />
+            <div
+              className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer text-gray-400 hover:text-[#8C0202] transition-colors"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <AiFillEyeInvisible className="text-2xl" /> : <AiFillEye className="text-2xl" />}
+            </div>
           </div>
           {isTouched.password && !form.passwordIsValid && (
-            <p className="text-red-500 text-xs mt-1 ml-1 font-medium">Min 8 chars, uppercase, lowercase, number.</p>
+            <p className="text-red-500 text-xs mt-2 ml-1 font-bold flex items-center gap-1">
+              <span className="w-1 h-1 bg-red-500 rounded-full"></span> Password requirements not met
+            </p>
           )}
         </div>
       </div>
 
-      <div className="pt-2">
+      <div className="pt-4">
         {isLoading ? (
-          <div className="flex justify-center"><LoadingSpinner /></div>
+          <div className="flex justify-center p-4"><LoadingSpinner /></div>
         ) : (
           <button
             type="submit"
-            className="w-full bg-[#8C0202] hover:bg-[#6b0202] text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 ease-in-out uppercase tracking-wide text-sm"
+            className="w-full bg-gradient-to-r from-[#8C0202] to-[#600000] hover:from-[#a00000] hover:to-[#8C0202] text-white font-black py-4 px-6 rounded-2xl shadow-xl shadow-[#8C0202]/20 hover:shadow-2xl hover:shadow-[#8C0202]/40 transform hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 ease-out uppercase tracking-widest text-xs"
           >
-            Login
+            Sign In to Dashboard
           </button>
         )}
       </div>
@@ -164,7 +174,7 @@ const Form = ({ onSubmit, error, isLoading, success }) => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="dark"
+          theme="light"
         />
       )}
     </form>
