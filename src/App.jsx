@@ -17,6 +17,7 @@ import Aboutus from "./pages/aboutus/Aboutus";
 import Blogpost from "./pages/blogpost/Blogpost";
 import Profile from "./pages/profile/Profile";
 import NewsletterModal from "./components/NewsletterModal/NewsletterModal";
+import AnalyticsTracker from "./components/Analytics/AnalyticsTracker";
 
 // Admin Imports
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -55,6 +56,7 @@ const App = () => {
       }}
     >
       <Suspense fallback={<LoadingSpinner />}>
+        <AnalyticsTracker />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />

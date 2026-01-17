@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const supabase = require('./supabaseClient');
+const UAParser = require('ua-parser-js');
 
 const app = express();
 app.use(cors());
@@ -377,10 +378,11 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
     try {
         // [1] Stats
         const statsPromise = (async () => {
-            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, viewsDataRes, categoriesRes] = await Promise.all([
+            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, totalCommentsRes, viewsDataRes, categoriesRes] = await Promise.all([
                 supabase.from('blogs').select('*', { count: 'exact', head: true }),
                 supabase.from('blogs').select('*', { count: 'exact', head: true }).not('image_url', 'is', null),
                 supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('comments').select('*', { count: 'exact', head: true }), // Total Comments
                 supabase.from('blogs').select('views'),
                 supabase.from('categories').select('*', { count: 'exact', head: true })
             ]);
@@ -388,6 +390,7 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
             const totalArticles = totalArticlesRes.count || 0;
             const totalMedia = totalMediaRes.count || 0;
             const pendingCommentsCount = pendingCommentsRes.count || 0;
+            const totalCommentsCount = totalCommentsRes.count || 0;
             const totalViewsCount = viewsDataRes.data?.reduce((acc, b) => acc + (parseInt(b.views) || 0), 0) || 0;
             const totalCategories = categoriesRes.count || 0;
 
@@ -396,6 +399,7 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
                 totalCategories,
                 totalMedia,
                 pendingComments: pendingCommentsCount,
+                totalComments: totalCommentsCount,
                 totalViews: totalViewsCount > 1000 ? `${(totalViewsCount / 1000).toFixed(1)}k` : totalViewsCount
             };
         })();
@@ -420,26 +424,73 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
         // [5] Engagement (Comment volume)
         const engagementPromise = supabase.from('comments').select('created_at');
 
+        const { period = 'year' } = req.query; // 'day', 'week', 'year'
+
         const [stats, recentPosts, recentComments, growthRaw, engagementRaw] = await Promise.all([
             statsPromise, recentPostsPromise, recentCommentsPromise, growthPromise, engagementPromise
         ]);
 
-        // Process Analytics
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const processByMonth = (items, key = 'created_at') => {
+        const processAnalytics = (items, period) => {
+            const now = new Date();
             const counts = {};
-            items.forEach(item => {
-                if (item[key]) {
-                    const date = new Date(item[key]);
-                    const m = months[date.getMonth()];
-                    counts[m] = (counts[m] || 0) + 1;
+
+            if (period === 'day') {
+                // Hourly (00:00 - 23:00) for today
+                const labels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+                labels.forEach(l => counts[l] = 0);
+
+                items.forEach(item => {
+                    const d = new Date(item.created_at);
+                    if (d.toDateString() === now.toDateString()) {
+                        const hour = `${d.getHours().toString().padStart(2, '0')}:00`;
+                        counts[hour]++;
+                    }
+                });
+                return labels.map(label => ({ label, value: counts[label] }));
+            } else if (period === 'week') {
+                // Last 7 days
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const labels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(now.getDate() - i);
+                    const dayName = days[d.getDay()];
+                    labels.push({ date: d.toISOString().split('T')[0], label: dayName });
+                    counts[d.toISOString().split('T')[0]] = 0;
                 }
-            });
-            return months.map(m => ({ month: m, value: counts[m] || 0 }));
+
+                items.forEach(item => {
+                    const dStr = new Date(item.created_at).toISOString().split('T')[0];
+                    if (counts[dStr] !== undefined) counts[dStr]++;
+                });
+
+                return labels.map(l => ({ label: l.label, value: counts[l.date] }));
+            } else {
+                // Yearly (Jan-Dec) for current year
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                months.forEach(m => counts[m] = 0);
+
+                items.forEach(item => {
+                    const d = new Date(item.created_at);
+                    if (d.getFullYear() === now.getFullYear()) {
+                        counts[months[d.getMonth()]]++;
+                    }
+                });
+                return months.map(m => ({ label: m, value: counts[m] }));
+            }
         };
 
-        const growthData = processByMonth(growthRaw.data || []).map(d => ({ month: d.month, posts: d.value }));
-        const engagementData = processByMonth(engagementRaw.data || []);
+        const growthData = processAnalytics(growthRaw.data || [], period).map(d => ({ month: d.label, posts: d.value }));
+        const engagementData = processAnalytics(engagementRaw.data || [], period).map(d => ({ month: d.label, value: d.value }));
+
+        // Mock Demographics Data (since we don't have geo-IP tracking yet)
+        const demographicsData = [
+            { location: "Nigeria", percentage: 45 },
+            { location: "United States", percentage: 25 },
+            { location: "United Kingdom", percentage: 15 },
+            { location: "Ghana", percentage: 10 },
+            { location: "Others", percentage: 5 }
+        ];
 
         res.status(200).json({
             status: 'success',
@@ -448,7 +499,8 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
                 recentPosts: recentPosts.data || [],
                 recentComments: recentComments.data || [],
                 growth: growthData,
-                engagement: engagementData
+                engagement: engagementData,
+                demographics: demographicsData
             }
         });
     } catch (err) {
@@ -460,9 +512,10 @@ app.get('/api/admin/dashboard-summary', async (req, res) => {
 app.get('/api/admin/analytics/summary', async (req, res) => {
     try {
         const statsPromise = (async () => {
-            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, categoriesRes] = await Promise.all([
+            const [totalArticlesRes, totalMediaRes, pendingCommentsRes, totalCommentsRes, categoriesRes] = await Promise.all([
                 supabase.from('blogs').select('*', { count: 'exact', head: true }),
                 supabase.from('blogs').select('*', { count: 'exact', head: true }).not('image_url', 'is', null),
+                supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
                 supabase.from('comments').select('*', { count: 'exact', head: true }),
                 supabase.from('categories').select('*', { count: 'exact', head: true })
             ]);
@@ -470,6 +523,7 @@ app.get('/api/admin/analytics/summary', async (req, res) => {
                 totalArticles: totalArticlesRes.count || 0,
                 totalMedia: totalMediaRes.count || 0,
                 pendingComments: pendingCommentsRes.count || 0,
+                totalComments: totalCommentsRes.count || 0,
                 totalCategories: categoriesRes.count || 0
             };
         })();
@@ -477,32 +531,133 @@ app.get('/api/admin/analytics/summary', async (req, res) => {
         const growthPromise = supabase.from('blogs').select('created_at');
         const engagementPromise = supabase.from('comments').select('created_at');
 
+        const { period = 'year', growthPeriod: gp, engagementPeriod: ep } = req.query;
+        const growthPeriod = gp || period;
+        const engagementPeriod = ep || period;
+
         const [stats, growthRaw, engagementRaw] = await Promise.all([
             statsPromise, growthPromise, engagementPromise
         ]);
 
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const processByMonth = (items, key = 'created_at') => {
+        const processAnalytics = (items, period) => {
+            const now = new Date();
             const counts = {};
-            items.forEach(item => {
-                if (item[key]) {
-                    const date = new Date(item[key]);
-                    const m = months[date.getMonth()];
-                    counts[m] = (counts[m] || 0) + 1;
+
+            if (period === 'day') {
+                // Hourly (00:00 - 23:00) for today
+                const labels = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`);
+                labels.forEach(l => counts[l] = 0);
+
+                items.forEach(item => {
+                    const d = new Date(item.created_at);
+                    if (d.toDateString() === now.toDateString()) {
+                        const hour = `${d.getHours().toString().padStart(2, '0')}:00`;
+                        counts[hour]++;
+                    }
+                });
+                return labels.map(label => ({ label, value: counts[label] }));
+            } else if (period === 'week') {
+                // Last 7 days
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                const labels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(now.getDate() - i);
+                    const dayName = days[d.getDay()];
+                    labels.push({ date: d.toISOString().split('T')[0], label: dayName });
+                    counts[d.toISOString().split('T')[0]] = 0;
                 }
-            });
-            return months.map(m => ({ month: m, value: counts[m] || 0 }));
+
+                items.forEach(item => {
+                    const dStr = new Date(item.created_at).toISOString().split('T')[0];
+                    if (counts[dStr] !== undefined) counts[dStr]++;
+                });
+
+                return labels.map(l => ({ label: l.label, value: counts[l.date] }));
+            } else {
+                // Yearly (Jan-Dec) for current year
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                months.forEach(m => counts[m] = 0);
+
+                items.forEach(item => {
+                    const d = new Date(item.created_at);
+                    if (d.getFullYear() === now.getFullYear()) {
+                        counts[months[d.getMonth()]]++;
+                    }
+                });
+                return months.map(m => ({ label: m, value: counts[m] }));
+            }
         };
 
-        const growthData = processByMonth(growthRaw.data || []).map(d => ({ month: d.month, posts: d.value }));
-        const engagementData = processByMonth(engagementRaw.data || []);
+        // Map 'value' to 'posts' for frontend compatibility if needed, or simply use 'value' generic
+        const growthData = processAnalytics(growthRaw.data || [], growthPeriod).map(d => ({ month: d.label, posts: d.value }));
+        // Note: Kept 'month' and 'posts' keys to minimize frontend breakage initially, but 'month' now contains generic labels (Hours, Days, Months)
+
+        const engagementData = processAnalytics(engagementRaw.data || [], engagementPeriod).map(d => ({ month: d.label, value: d.value }));
+
+        // Fetch Demographics & Devices from Analytics Table
+        let demographicsData = [];
+        let deviceData = [];
+
+        try {
+            const { data: analyticsData, error: analyticsError } = await supabase
+                .from('analytics')
+                .select('country, device_type');
+
+            if (!analyticsError && analyticsData && analyticsData.length > 0) {
+                // Process Demographics
+                const countryCounts = {};
+                const deviceCounts = {};
+
+                analyticsData.forEach(d => {
+                    // Country
+                    const country = d.country === 'Unknown' ? 'Unknown Location' : d.country;
+                    countryCounts[country] = (countryCounts[country] || 0) + 1;
+
+                    // Device
+                    const device = d.device_type || 'desktop';
+                    deviceCounts[device] = (deviceCounts[device] || 0) + 1;
+                });
+
+                const total = analyticsData.length;
+
+                // Format Demographics
+                demographicsData = Object.entries(countryCounts)
+                    .map(([loc, count]) => ({ location: loc, percentage: Math.round((count / total) * 100) }))
+                    .sort((a, b) => b.percentage - a.percentage);
+
+                if (demographicsData.length > 5) {
+                    const top4 = demographicsData.slice(0, 4);
+                    const othersLegacy = demographicsData.slice(4).reduce((acc, curr) => acc + curr.percentage, 0);
+                    top4.push({ location: "Others", percentage: othersLegacy });
+                    demographicsData = top4;
+                }
+
+                // Format Devices
+                deviceData = Object.entries(deviceCounts)
+                    .map(([device, count]) => ({ device, count, percentage: Math.round((count / total) * 100) }))
+                    .sort((a, b) => b.percentage - a.percentage);
+
+            } else {
+                // No real data
+                demographicsData = [];
+                deviceData = [];
+            }
+        } catch (e) {
+            console.error("Analytics fetch error:", e);
+        }
+
+        // If empty (no table or no data), maybe show nothing or specific "No Data" state in frontend
+        // The frontend handles empty arrays gracefully usually, but let's ensure we return arrays.
 
         res.status(200).json({
             status: 'success',
             data: {
                 stats,
                 growth: growthData,
-                engagement: engagementData
+                engagement: engagementData,
+                demographics: demographicsData,
+                devices: deviceData
             }
         });
     } catch (err) {
@@ -657,6 +812,44 @@ app.get('/api/admin/global-search', async (req, res) => {
         res.status(200).json({ status: 'success', data: { results } });
     } catch (err) {
         res.status(500).json({ status: 'fail', message: err.message });
+    }
+});
+
+// Analytics Tracking Endpoint
+app.post('/api/track', async (req, res) => {
+    try {
+        const userAgent = req.headers['user-agent'];
+        const { referrer, path, country } = req.body;
+
+        // Parse User Agent
+        const parser = new UAParser(userAgent);
+        const result = parser.getResult();
+
+        const deviceType = result.device.type || 'desktop'; // Default to desktop if undefined (mobile/tablet/console usually defined)
+        const browser = result.browser.name;
+        const os = result.os.name;
+
+        // Insert into analytics table
+        // Note: 'analytics' table must exist.
+        const { error } = await supabase.from('analytics').insert({
+            device_type: deviceType,
+            browser,
+            os,
+            referrer,
+            path,
+            country: country || 'Unknown' // Ideally passed from client or determined by IP middleware
+        });
+
+        if (error) {
+            console.log("Analytics Insert Error (Table might not exist):", error.message);
+            // Don't fail the request significantly, just log
+            return res.status(200).json({ status: 'ok', warning: 'Tracking failed silently' });
+        }
+
+        res.status(200).json({ status: 'success' });
+    } catch (err) {
+        console.log("Tracking Error:", err);
+        res.status(200).json({ status: 'error', message: err.message }); // Return 200 to avoid client errors
     }
 });
 

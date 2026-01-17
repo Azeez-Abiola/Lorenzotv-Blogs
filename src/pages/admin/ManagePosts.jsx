@@ -111,6 +111,7 @@ const ManagePostsSkeleton = () => (
                 </div>
                 <div className="h-4 bg-gray-100 dark:bg-white/5 w-20 rounded"></div>
                 <div className="h-4 bg-gray-100 dark:bg-white/5 w-20 rounded"></div>
+                <div className="h-4 bg-gray-100 dark:bg-white/5 w-16 rounded"></div>
                 <div className="h-4 bg-gray-100 dark:bg-white/5 w-32 rounded"></div>
                 <div className="flex space-x-2">
                     <div className="w-8 h-8 bg-gray-50 dark:bg-white/5 rounded"></div>
@@ -278,6 +279,7 @@ const ManagePosts = () => {
                                     <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Title</th>
                                     <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Category</th>
                                     <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Views</th>
                                     <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Created</th>
                                     <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-right">Actions</th>
                                 </tr>
@@ -285,7 +287,7 @@ const ManagePosts = () => {
                             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                                 {displayPosts.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
+                                        <td colSpan="6" className="px-6 py-12 text-center text-gray-400 dark:text-gray-500 text-sm">
                                             No posts found in this view.
                                         </td>
                                     </tr>
@@ -321,6 +323,14 @@ const ManagePosts = () => {
                                                             <span className="text-[11px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wide">Draft</span>
                                                         </>
                                                     )}
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center space-x-2 text-gray-500 dark:text-gray-400">
+                                                    <AiOutlineEye size={14} className="text-gray-400" />
+                                                    <span className="text-[11px] font-bold tabular-nums">
+                                                        {post.views ? post.views.toLocaleString() : 0}
+                                                    </span>
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-[11px] font-medium text-gray-500 dark:text-gray-400">

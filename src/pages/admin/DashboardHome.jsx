@@ -34,9 +34,8 @@ const MetricCard = ({ title, value, icon, trend, trendValue, iconBg }) => (
     </div>
 );
 
-const CustomDropdown = ({ options, defaultValue }) => {
+const CustomDropdown = ({ options, value, onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selected, setSelected] = useState(defaultValue);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
@@ -55,7 +54,7 @@ const CustomDropdown = ({ options, defaultValue }) => {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center space-x-2 bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 rounded-md px-3 py-1.5 transition-colors"
             >
-                <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">{selected}</span>
+                <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">{value}</span>
                 <IoChevronDownOutline size={12} className="text-gray-400" />
             </button>
             {isOpen && (
@@ -64,8 +63,8 @@ const CustomDropdown = ({ options, defaultValue }) => {
                         {options.map((option) => (
                             <button
                                 key={option}
-                                onClick={() => { setSelected(option); setIsOpen(false); }}
-                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${selected === option ? 'text-[#8C0202] dark:text-[#8C0202] font-bold' : 'text-gray-600 dark:text-gray-400'}`}
+                                onClick={() => { onChange(option); setIsOpen(false); }}
+                                className={`w-full text-left px-4 py-2 text-[11px] font-medium transition-colors hover:bg-gray-50 dark:hover:bg-white/5 ${value === option ? 'text-[#8C0202] dark:text-[#8C0202] font-bold' : 'text-gray-600 dark:text-gray-400'}`}
                             >
                                 {option}
                             </button>
@@ -77,12 +76,19 @@ const CustomDropdown = ({ options, defaultValue }) => {
     );
 };
 
-const PostGrowthChart = ({ data }) => {
+const PostGrowthChart = ({ data, period, onPeriodChange }) => {
     return (
         <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full relative">
             <div className="flex items-center justify-between mb-6">
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Publication Volume</h4>
-                <CustomDropdown options={["6 Months", "Yearly", "All Time"]} defaultValue="6 Months" />
+                <CustomDropdown
+                    options={["Today", "This Week", "This Year"]}
+                    value={period === 'day' ? 'Today' : period === 'week' ? 'This Week' : 'This Year'}
+                    onChange={(val) => {
+                        const map = { 'Today': 'day', 'This Week': 'week', 'This Year': 'year' };
+                        onPeriodChange(map[val]);
+                    }}
+                />
             </div>
             <div className="flex items-center space-x-4 mb-6">
                 <div className="flex items-center space-x-2">
@@ -94,36 +100,41 @@ const PostGrowthChart = ({ data }) => {
             <div className="flex-1 relative flex items-end justify-between space-x-2 min-h-[200px]">
                 {/* Horizontal Grid Lines */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-10">
-                    {[50, 40, 30, 20, 10, 0].map(val => (
+                    {[1, 0.8, 0.6, 0.4, 0.2, 0].map(val => (
                         <div key={val} className="flex items-center w-full">
-                            <span className="text-[10px] font-bold text-gray-400 w-5 shrink-0">{val}</span>
+                            <span className="text-[10px] font-bold text-gray-400 w-5 shrink-0">
+                                {data.length ? Math.round(Math.max(...data.map(d => d.posts), 10) * val) : 0}
+                            </span>
                             <div className="flex-1 border-t border-dashed border-gray-100 dark:border-white/5 ml-2"></div>
                         </div>
                     ))}
                 </div>
 
-                {data.map((d, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center space-y-3 group z-10">
-                        <div className="relative w-full flex items-end justify-center">
-                            <div
-                                className={`w-7 md:w-9 rounded transition-all duration-500 relative overflow-hidden
-                                    ${i % 2 !== 0 ? 'bg-[#8C0202]' : 'bg-gray-100 hover:bg-gray-200'}`}
-                                style={{ height: `${(d.posts / 50) * 100}%` }}
-                            >
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                    {d.posts} Posts
+                {data.map((d, i) => {
+                    const maxVal = Math.max(...data.map(d => d.posts), 10);
+                    return (
+                        <div key={i} className="flex-1 flex flex-col items-center space-y-3 group z-10">
+                            <div className="relative w-full flex items-end justify-center h-full">
+                                <div
+                                    className={`w-7 md:w-9 rounded transition-all duration-500 relative overflow-hidden
+                                        ${i % 2 !== 0 ? 'bg-[#8C0202]' : 'bg-gray-100 hover:bg-gray-200'}`}
+                                    style={{ height: `${(d.posts / maxVal) * 100}%` }}
+                                >
+                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                        {d.posts} Posts
+                                    </div>
                                 </div>
                             </div>
+                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight truncate w-full text-center">{d.month}</span>
                         </div>
-                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{d.month}</span>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
 };
 
-const EngagementChart = ({ data }) => {
+const EngagementChart = ({ data, period, onPeriodChange }) => {
     if (!data || data.length === 0) return (
         <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full items-center justify-center text-gray-400">
             <p className="text-xs font-bold uppercase tracking-widest">No Data Available</p>
@@ -142,7 +153,14 @@ const EngagementChart = ({ data }) => {
         <div className="bg-white dark:bg-[#0A0A0A] p-6 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col h-full relative">
             <div className="flex items-center justify-between mb-6">
                 <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide">Engagement (Comments)</h4>
-                <CustomDropdown options={["Yearly"]} defaultValue="Yearly" />
+                <CustomDropdown
+                    options={["Today", "This Week", "This Year"]}
+                    value={period === 'day' ? 'Today' : period === 'week' ? 'This Week' : 'This Year'}
+                    onChange={(val) => {
+                        const map = { 'Today': 'day', 'This Week': 'week', 'This Year': 'year' };
+                        onPeriodChange(map[val]);
+                    }}
+                />
             </div>
             <div className="flex items-center space-x-5 mb-6">
                 <div className="flex items-center space-x-2"><span className="w-2.5 h-2.5 bg-[#8C0202] rounded-sm"></span><span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Activity Volume</span></div>
@@ -161,7 +179,7 @@ const EngagementChart = ({ data }) => {
                     {data.map((d, i) => (
                         <div key={i} className="text-[10px] font-bold text-gray-400 text-center w-full flex flex-col items-center group">
                             <span className="mb-1 opacity-0 group-hover:opacity-100 transition-opacity text-[#8C0202]">{d.value}</span>
-                            <span>{d.month}</span>
+                            <span className="truncate w-full">{d.month}</span>
                         </div>
                     ))}
                 </div>
@@ -195,6 +213,7 @@ const DashboardHome = () => {
         totalCategories: 0,
         totalMedia: 0,
         pendingComments: 0,
+        totalComments: 0, // NEW
         totalViews: 0
     });
     const [recentPosts, setRecentPosts] = useState([]);
@@ -203,8 +222,11 @@ const DashboardHome = () => {
     const [engagementData, setEngagementData] = useState([]);
     const { isLoading, error, fetchRequest } = useFetch();
 
+    const [period, setPeriod] = useState('year'); // 'day', 'week', 'year'
+    const [commentView, setCommentView] = useState('total');
+
     const fetchDashboardData = useCallback(() => {
-        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/dashboard-summary` }, (res) => {
+        fetchRequest({ url: `${import.meta.env.VITE_API_BASE_URL}/admin/dashboard-summary?period=${period}` }, (res) => {
             if (res.status === 'success') {
                 const { stats, recentPosts, recentComments, growth, engagement } = res.data;
                 setStats(stats);
@@ -214,7 +236,7 @@ const DashboardHome = () => {
                 setEngagementData(engagement);
             }
         });
-    }, [fetchRequest]);
+    }, [fetchRequest, period]); // Add period dependency
 
     useEffect(() => {
         fetchDashboardData();
@@ -262,20 +284,45 @@ const DashboardHome = () => {
                     trendValue="22.1"
                     iconBg="bg-gray-50"
                 />
-                <MetricCard
-                    title="Comments"
-                    value={stats.pendingComments}
-                    icon={<AiOutlineMessage />}
-                    trend="up"
-                    trendValue="10.5"
-                    iconBg="bg-gray-50"
-                />
+                <div className="bg-white dark:bg-[#0A0A0A] p-5 rounded-lg border border-gray-200/80 dark:border-white/10 flex flex-col space-y-4 hover:shadow-lg hover:shadow-gray-200/40 dark:hover:shadow-white/5 transition-all duration-300 group relative">
+                    <div className="flex items-center justify-between">
+                        <div className={`w-11 h-11 bg-gray-50 dark:bg-white/5 rounded-md flex items-center justify-center text-[#8C0202] text-xl border border-gray-100 dark:border-white/10`}>
+                            <AiOutlineMessage />
+                        </div>
+                        <div className={`flex items-center space-x-1 text-[11px] font-bold text-emerald-500`}>
+                            <AiOutlineArrowUp size={12} />
+                            <span>10.5%</span>
+                        </div>
+                    </div>
+                    <div className="pt-1">
+                        <div className="flex justify-between items-center mb-1">
+                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{commentView === 'total' ? 'Total Comments' : 'Pending Comments'}</p>
+                            <button
+                                onClick={() => setCommentView(prev => prev === 'total' ? 'pending' : 'total')}
+                                className="text-[9px] font-bold text-[#8C0202] hover:underline uppercase tracking-wide"
+                            >
+                                {commentView === 'total' ? 'Show Pending' : 'Show Total'}
+                            </button>
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                            {commentView === 'total' ? stats.totalComments : stats.pendingComments}
+                        </h3>
+                    </div>
+                </div>
             </div>
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <PostGrowthChart data={growthData} />
-                <EngagementChart data={engagementData} />
+                <PostGrowthChart
+                    data={growthData}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                />
+                <EngagementChart
+                    data={engagementData}
+                    period={period}
+                    onPeriodChange={setPeriod}
+                />
             </div>
 
             {/* Tables Row */}
